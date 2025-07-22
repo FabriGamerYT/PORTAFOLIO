@@ -1,0 +1,58 @@
+<svg width="400" height="240" viewBox="0 0 400 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="240" fill="#1f2937"/>
+  
+  <!-- Header -->
+  <rect width="400" height="60" fill="#374151"/>
+  <text x="200" y="35" text-anchor="middle" fill="#f9fafb" font-family="Arial, sans-serif" font-size="20" font-weight="bold">FGameStudio Software</text>
+  
+  <!-- Sidebar -->
+  <rect width="80" height="180" y="60" fill="#1e3a8a"/>
+  
+  <!-- Navigation items -->
+  <rect x="10" y="80" width="60" height="8" fill="#3b82f6" rx="2"/>
+  <rect x="10" y="95" width="50" height="6" fill="#6b7280" rx="2"/>
+  <rect x="10" y="108" width="55" height="6" fill="#6b7280" rx="2"/>
+  <rect x="10" y="121" width="45" height="6" fill="#6b7280" rx="2"/>
+  
+  <!-- Main content area -->
+  <rect x="80" y="60" width="320" height="180" fill="#f8fafc"/>
+  
+  <!-- Stats cards -->
+  <rect x="100" y="80" width="65" height="40" fill="#3b82f6" rx="4"/>
+  <rect x="175" y="80" width="65" height="40" fill="#10b981" rx="4"/>
+  <rect x="250" y="80" width="65" height="40" fill="#f59e0b" rx="4"/>
+  <rect x="325" y="80" width="65" height="40" fill="#8b5cf6" rx="4"/>
+  
+  <!-- Chart area -->
+  <rect x="100" y="135" width="280" height="80" fill="#ffffff" rx="4"/>
+  
+  <!-- Chart lines -->
+  <polyline points="120,195 140,180 160,185 180,170 200,175 220,160 240,165 260,150 280,155 300,140" 
+            stroke="#3b82f6" stroke-width="2" fill="none"/>
+  <polyline points="120,205 140,195 160,200 180,190 200,195 220,185 240,190 260,180 280,185 300,175" 
+            stroke="#10b981" stroke-width="2" fill="none"/>
+  
+  <!-- QR Scanner icon -->
+  <rect x="330" y="140" width="50" height="50" fill="#ffffff" rx="4"/>
+  <rect x="340" y="150" width="30" height="30" fill="#1f2937"/>
+  <rect x="343" y="153" width="6" height="6" fill="#ffffff"/>
+  <rect x="351" y="153" width="6" height="6" fill="#ffffff"/>
+  <rect x="359" y="153" width="6" height="6" fill="#ffffff"/>
+  <rect x="343" y="161" width="6" height="6" fill="#ffffff"/>
+  <rect x="351" y="161" width="6" height="6" fill="#ffffff"/>
+  <rect x="359" y="161" width="6" height="6" fill="#ffffff"/>
+  <rect x="343" y="169" width="6" height="6" fill="#ffffff"/>
+  <rect x="351" y="169" width="6" height="6" fill="#ffffff"/>
+  <rect x="359" y="169" width="6" height="6" fill="#ffffff"/>
+  
+  <!-- Production lines indicators -->
+  <circle cx="110" cy="210" r="3" fill="#10b981"/>
+  <circle cx="130" cy="210" r="3" fill="#10b981"/>
+  <circle cx="150" cy="210" r="3" fill="#f59e0b"/>
+  <circle cx="170" cy="210" r="3" fill="#ef4444"/>
+  
+  <!-- Title overlay -->
+  <rect x="0" y="200" width="400" height="40" fill="rgba(0,0,0,0.8)"/>
+  <text x="200" y="225" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="16" font-weight="bold">System Production</text>
+</svg>

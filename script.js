@@ -42,10 +42,16 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
         if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
+            const offsetTop = target.offsetTop - 80; // Ajustar por header fijo
+            window.scrollTo({
+                top: offsetTop,
+                behavior: 'smooth'
             });
+            // Cerrar menú móvil si está abierto
+            const navMenu = document.querySelector('.nav-menu');
+            if (navMenu) {
+                navMenu.classList.remove('active');
+            }
         }
     });
 });
@@ -66,16 +72,31 @@ const featuredProjects = [
 // Proyectos locales destacados
 const localProjects = [
     {
-        name: 'ATL Production System',
-        description: 'Sistema de gestión de producción empresarial con dashboard interactivo, escáner QR y control en tiempo real',
+        name: 'System Production',
+        description: 'Sistema de gestión de producción empresarial con dashboard interactivo, escáner QR y control en tiempo real desarrollado por FGameStudio Software',
         html_url: './atl-production-system/index.html',
         homepage: './atl-production-system/demo.html',
         language: 'JavaScript',
         topics: ['web', 'dashboard', 'production', 'qr-scanner'],
         stargazers_count: 0,
         forks_count: 0,
+        status: 'En desarrollo',
         has_pages: true,
         isLocal: true
+    },
+    {
+        name: 'Puerto Alcazar - Servidor Minecraft',
+        description: 'Servidor de Minecraft Java con mods de rol y lore medieval. Incluye boss épicos distribuidos por todo el mundo para batallas legendarias. Experiencia de juego inmersiva con historia rica y mecánicas de RPG avanzadas.',
+        html_url: '#',
+        homepage: '#',
+        language: 'Java',
+        topics: ['minecraft', 'java', 'rpg', 'medieval', 'mods', 'gaming'],
+        stargazers_count: 15,
+        forks_count: 3,
+        has_pages: false,
+        isLocal: true,
+        status: 'Terminado',
+        technologies: ['Minecraft Forge', 'Java', 'ModAPI', 'JSON', 'YAML']
     }
 ];
 
@@ -136,24 +157,36 @@ function createProjectCard(repo) {
     card.className = 'project-card';
     card.setAttribute('data-category', categorizeProject(repo));
 
-    // Obtener el lenguaje principal y otros lenguajes
+    // Obtener el lenguaje principal y tecnologías adicionales
     const languages = repo.language ? [repo.language] : [];
+    const technologies = repo.technologies || [];
+    const allTechs = [...new Set([...languages, ...technologies])];
 
-    // Icono especial para proyectos locales
-    const projectIcon = repo.isLocal ? '<i class="fas fa-star" style="color: #f59e0b;"></i>' : '';
+    // Icono específico para cada tipo de proyecto
+    let projectIcon = '<i class="fas fa-code"></i>';
+    if (repo.name.includes('Minecraft') || repo.topics.includes('minecraft')) {
+        projectIcon = '<i class="fas fa-cube" style="color: #00ff00;"></i>';
+    } else if (repo.isLocal) {
+        projectIcon = '<i class="fas fa-star" style="color: #f59e0b;"></i>';
+    }
+
+    // Badge de estado para proyectos locales
+    const statusBadge = repo.status ? `<span class="status-badge-project ${repo.status.toLowerCase()}">${repo.status}</span>` : '';
 
     card.innerHTML = `
         <div class="project-header">
             <h3 class="project-title">${projectIcon} ${repo.name}</h3>
             <div class="project-stats">
+                ${statusBadge}
                 <span><i class="fas fa-star"></i> ${repo.stargazers_count}</span>
                 <span><i class="fas fa-code-branch"></i> ${repo.forks_count}</span>
             </div>
         </div>
         <p class="project-description">${repo.description || 'Sin descripción disponible'}</p>
-        ${languages.length > 0 ? `
+        ${allTechs.length > 0 ? `
             <div class="project-languages">
-                ${languages.map(lang => `<span class="language-tag">${lang}</span>`).join('')}
+                ${allTechs.slice(0, 5).map(tech => `<span class="language-tag">${tech}</span>`).join('')}
+                ${allTechs.length > 5 ? `<span class="language-tag">+${allTechs.length - 5}</span>` : ''}
             </div>
         ` : ''}
         <div class="project-links">
@@ -184,7 +217,10 @@ function categorizeProject(repo) {
     const topics = repo.topics || [];
     
     // Categorizar basado en el nombre, descripción y topics
-    if (topics.includes('game') || name.includes('game') || description.includes('juego') || description.includes('game')) {
+    if (topics.includes('game') || topics.includes('gaming') || topics.includes('minecraft') || 
+        name.includes('game') || name.includes('minecraft') || name.includes('puerto-alcazar') ||
+        description.includes('juego') || description.includes('game') || description.includes('minecraft') ||
+        description.includes('servidor') && description.includes('minecraft')) {
         return 'game';
     }
     
@@ -246,6 +282,68 @@ const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
 };
+
+// Servicios WhatsApp
+function contactarServicio(servicio) {
+    const mensajes = {
+        'desarrollo': 'Hola, estoy interesado en sus servicios de desarrollo de software. Me gustaría obtener más información.',
+        'reparacion': 'Hola, necesito servicios de reparación técnica. ¿Podrían ayudarme?',
+        'consultoria': 'Hola, me gustaría solicitar una consultoría tecnológica. ¿Cuáles son sus disponibilidades?'
+    };
+    
+    const telefono = '1234567890'; // Reemplazar con tu número de teléfono
+    const mensaje = mensajes[servicio] || 'Hola, me gustaría obtener más información sobre sus servicios.';
+    const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+    
+    window.open(url, '_blank');
+}
+
+// Función para descargar CV
+function downloadCV() {
+    // Simulación de descarga de CV
+    const link = document.createElement('a');
+    link.href = '#'; // Aquí iría la ruta real del archivo PDF del CV
+    link.download = 'Fabricio_Alcazar_CV.pdf';
+    
+    // Mostrar mensaje de que el CV está siendo preparado
+    const btn = document.querySelector('.download-btn');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparando descarga...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        // Mostrar alerta de que el CV no está disponible (desarrollo)
+        alert('El CV en PDF estará disponible próximamente. Mientras tanto, puedes contactarme directamente para solicitarlo.');
+    }, 2000);
+}
+
+// Animación de barras de habilidades al hacer scroll
+function animarBarrasHabilidades() {
+    const skillBars = document.querySelectorAll('.skill-progress');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const width = entry.target.style.width;
+                entry.target.style.width = '0';
+                setTimeout(() => {
+                    entry.target.style.width = width;
+                }, 100);
+            }
+        });
+    });
+    
+    skillBars.forEach(bar => observer.observe(bar));
+}
+
+// Inicialización de animaciones CV
+document.addEventListener('DOMContentLoaded', function() {
+    animarBarrasHabilidades();
+});
 
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
