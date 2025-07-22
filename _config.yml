@@ -2,6 +2,25 @@
 layout: default
 title: FabriGamerYT - Portafolio Personal
 description: Desarrollador apasionado por crear soluciones innovadoras. Explora mis proyectos y habilidades en desarrollo web y programación.
-author: FabriGamerYT
+author: FabriGamerYT - Fabricio Alcazar G.
+keywords: portafolio, desarrollador, web, programación, proyectos
 lang: es
+
+# Configuración para GitHub Pages
+include:
+  - atl-production-system/
+
+# Excluir archivos innecesarios
+exclude:
+  - node_modules/
+  - package*.json
+
+# Configuraciones adicionales
+plugins:
+  - jekyll-relative-links
+
+# Permitir archivos HTML adicionales
+relative_links:
+  enabled: true
+  collections: false
 ---

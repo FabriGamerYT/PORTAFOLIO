@@ -63,30 +63,51 @@ const featuredProjects = [
     // }
 ];
 
+// Proyectos locales destacados
+const localProjects = [
+    {
+        name: 'ATL Production System',
+        description: 'Sistema de gestión de producción empresarial con dashboard interactivo, escáner QR y control en tiempo real',
+        html_url: './atl-production-system/index.html',
+        homepage: './atl-production-system/demo.html',
+        language: 'JavaScript',
+        topics: ['web', 'dashboard', 'production', 'qr-scanner'],
+        stargazers_count: 0,
+        forks_count: 0,
+        has_pages: true,
+        isLocal: true
+    }
+];
+
 async function fetchGitHubProjects() {
     try {
         const response = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=50`);
         const repos = await response.json();
 
         if (response.ok) {
-            displayProjects(repos);
+            // Combinar proyectos locales con los de GitHub
+            const allProjects = [...localProjects, ...repos];
+            displayProjects(allProjects);
         } else {
-            showError('No se pudieron cargar los proyectos desde GitHub');
+            // Si falla GitHub, mostrar solo proyectos locales
+            displayProjects(localProjects);
         }
     } catch (error) {
         console.error('Error fetching GitHub projects:', error);
-        showError('Error de conexión al cargar los proyectos');
+        // Si hay error de conexión, mostrar proyectos locales
+        displayProjects(localProjects);
     }
 }
 
 function displayProjects(repos) {
     const projectsGrid = document.getElementById('projectsGrid');
     
-    // Filtrar repositorios (excluir forks y repositorios sin descripción)
+    // Filtrar repositorios (excluir forks y repositorios sin descripción, excepto proyectos locales)
     const filteredRepos = repos.filter(repo => 
-        !repo.fork && 
+        repo.isLocal || // Incluir proyectos locales siempre
+        (!repo.fork && 
         repo.description && 
-        repo.name !== `${GITHUB_USERNAME}.github.io`
+        repo.name !== `${GITHUB_USERNAME}.github.io`)
     );
 
     if (filteredRepos.length === 0) {
@@ -118,9 +139,12 @@ function createProjectCard(repo) {
     // Obtener el lenguaje principal y otros lenguajes
     const languages = repo.language ? [repo.language] : [];
 
+    // Icono especial para proyectos locales
+    const projectIcon = repo.isLocal ? '<i class="fas fa-star" style="color: #f59e0b;"></i>' : '';
+
     card.innerHTML = `
         <div class="project-header">
-            <h3 class="project-title">${repo.name}</h3>
+            <h3 class="project-title">${projectIcon} ${repo.name}</h3>
             <div class="project-stats">
                 <span><i class="fas fa-star"></i> ${repo.stargazers_count}</span>
                 <span><i class="fas fa-code-branch"></i> ${repo.forks_count}</span>
@@ -133,15 +157,17 @@ function createProjectCard(repo) {
             </div>
         ` : ''}
         <div class="project-links">
-            <a href="${repo.html_url}" target="_blank" class="project-link">
-                <i class="fab fa-github"></i> Código
-            </a>
-            ${repo.homepage ? `
-                <a href="${repo.homepage}" target="_blank" class="project-link">
-                    <i class="fas fa-external-link-alt"></i> Demo
+            ${!repo.isLocal ? `
+                <a href="${repo.html_url}" target="_blank" class="project-link">
+                    <i class="fab fa-github"></i> Código
                 </a>
             ` : ''}
-            ${repo.has_pages ? `
+            ${repo.homepage ? `
+                <a href="${repo.homepage}" target="_blank" class="project-link">
+                    <i class="fas fa-${repo.isLocal ? 'play' : 'external-link-alt'}"></i> ${repo.isLocal ? 'Ver Demo' : 'Demo'}
+                </a>
+            ` : ''}
+            ${(repo.has_pages && !repo.isLocal) ? `
                 <a href="https://${GITHUB_USERNAME}.github.io/${repo.name}" target="_blank" class="project-link">
                     <i class="fas fa-globe"></i> Sitio
                 </a>
@@ -162,11 +188,15 @@ function categorizeProject(repo) {
         return 'game';
     }
     
-    if (topics.includes('web') || topics.includes('website') || name.includes('web') || description.includes('web') || repo.has_pages) {
+    if (topics.includes('web') || topics.includes('website') || topics.includes('dashboard') || 
+        name.includes('web') || description.includes('web') || description.includes('dashboard') || 
+        repo.has_pages) {
         return 'web';
     }
     
-    if (topics.includes('app') || topics.includes('application') || name.includes('app') || description.includes('aplicación') || description.includes('application')) {
+    if (topics.includes('app') || topics.includes('application') || name.includes('app') || 
+        description.includes('aplicación') || description.includes('application') ||
+        description.includes('sistema') || description.includes('production')) {
         return 'app';
     }
     
