@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FabriGamerYT - Portafolio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <h2>FabriGamerYT</h2>
+            </div>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link">Inicio</a>
+                <a href="#about" class="nav-link">Sobre mí</a>
+                <a href="#projects" class="nav-link">Proyectos</a>
+                <a href="#contact" class="nav-link">Contacto</a>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Hola, soy <span class="highlight">FabriGamerYT</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Desarrollador apasionado por crear soluciones innovadoras
+                </p>
+                <div class="hero-buttons">
+                    <a href="#projects" class="btn btn-primary">Ver Proyectos</a>
+                    <a href="#contact" class="btn btn-secondary">Contactarme</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="code-animation">
+                    <div class="code-line"></div>
+                    <div class="code-line"></div>
+                    <div class="code-line"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <h2 class="section-title">Sobre mí</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>
+                        Soy un desarrollador con pasión por la programación y la tecnología. 
+                        Me especializo en crear aplicaciones web y proyectos que resuelven problemas reales.
+                    </p>
+                    <p>
+                        A lo largo del tiempo, he trabajado en diversos proyectos utilizando diferentes 
+                        tecnologías y lenguajes de programación, siempre buscando aprender algo nuevo.
+                    </p>
+                    <div class="skills">
+                        <div class="skill-tag">JavaScript</div>
+                        <div class="skill-tag">Python</div>
+                        <div class="skill-tag">HTML/CSS</div>
+                        <div class="skill-tag">React</div>
+                        <div class="skill-tag">Node.js</div>
+                        <div class="skill-tag">Git</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="projects">
+        <div class="container">
+            <h2 class="section-title">Mis Proyectos</h2>
+            <div class="projects-filter">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="web">Web</button>
+                <button class="filter-btn" data-filter="app">Aplicaciones</button>
+                <button class="filter-btn" data-filter="game">Juegos</button>
+            </div>
+            <div class="projects-grid" id="projectsGrid">
+                <!-- Los proyectos se cargarán dinámicamente desde GitHub -->
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Cargando proyectos...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title">Contacto</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fab fa-github"></i>
+                        <a href="https://github.com/FabriGamerYT" target="_blank">GitHub</a>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:tu-email@ejemplo.com">Enviar Email</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 FabriGamerYT. Hecho con ❤️ y GitHub Pages</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
