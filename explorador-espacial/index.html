@@ -1,0 +1,2154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Explorador Espacial: La Aventura</title>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #000;
+            color: #fff;
+            touch-action: none;
+        }
+        
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            touch-action: manipulation;
+        }
+        
+        .ui-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .panel {
+            position: absolute;
+            background-color: rgba(10, 20, 40, 0.85);
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 0 15px rgba(0, 150, 255, 0.4);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 150, 255, 0.3);
+        }
+        
+        .info-panel {
+            top: 10px;
+            right: 10px;
+            width: 280px;
+            pointer-events: auto;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+        
+        .controls-panel {
+            bottom: 10px;
+            left: 10px;
+            width: 280px;
+            pointer-events: auto;
+        }
+        
+        .mission-panel {
+            top: 10px;
+            left: 10px;
+            width: 280px;
+            pointer-events: auto;
+            max-height: 45vh;
+            overflow-y: auto;
+        }
+        
+        .target-panel {
+            bottom: 10px;
+            right: 10px;
+            width: 280px;
+            pointer-events: auto;
+        }
+        
+        .ship-controls {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+            text-align: center;
+            pointer-events: auto;
+            display: none;
+        }
+        
+        .mobile-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 400px;
+            display: none;
+            pointer-events: auto;
+            text-align: center;
+        }
+        
+        .control-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 8px 0;
+        }
+        
+        .touch-btn {
+            background-color: rgba(21, 101, 192, 0.8);
+            color: white;
+            border: 2px solid rgba(79, 195, 247, 0.6);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 20px;
+            font-weight: bold;
+            touch-action: manipulation;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 10px rgba(0, 150, 255, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .touch-btn:active {
+            background-color: rgba(79, 195, 247, 0.9);
+            transform: scale(0.95);
+            box-shadow: 0 0 15px rgba(0, 150, 255, 0.6);
+        }
+        
+        .touch-btn:hover {
+            background-color: rgba(79, 195, 247, 0.7);
+            box-shadow: 0 0 15px rgba(0, 150, 255, 0.5);
+        }
+        
+        h2 {
+            color: #4fc3f7;
+            margin-bottom: 8px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(79, 195, 247, 0.5);
+        }
+        
+        p {
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #e0e0e0;
+            line-height: 1.4;
+        }
+        
+        .btn {
+            background-color: #1565c0;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            pointer-events: auto;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+            touch-action: manipulation;
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        .btn:hover {
+            background-color: #1976d2;
+            box-shadow: 0 0 10px rgba(25, 118, 210, 0.7);
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .btn.active {
+            background-color: #0d47a1;
+            box-shadow: 0 0 15px rgba(13, 71, 161, 0.9);
+        }
+        
+        .btn.danger {
+            background-color: #c62828;
+        }
+        
+        .btn.danger:hover {
+            background-color: #d32f2f;
+            box-shadow: 0 0 10px rgba(211, 47, 47, 0.7);
+        }
+        
+        .btn.success {
+            background-color: #2e7d32;
+        }
+        
+        .btn.success:hover {
+            background-color: #388e3c;
+            box-shadow: 0 0 10px rgba(56, 142, 60, 0.7);
+        }
+        
+        .slider-container {
+            margin: 10px 0;
+        }
+        
+        .slider {
+            width: 100%;
+            pointer-events: auto;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+        }
+        
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1s;
+        }
+        
+        .loading-title {
+            font-size: 36px;
+            color: #4fc3f7;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(79, 195, 247, 0.7);
+        }
+        
+        .loading-bar-container {
+            width: 300px;
+            height: 10px;
+            background-color: #0a1428;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #1976d2;
+            transition: width 0.3s;
+        }
+        
+        .tutorial {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(10, 20, 40, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 150, 255, 0.7);
+            z-index: 100;
+            display: none;
+        }
+        
+        .tutorial h2 {
+            margin-bottom: 15px;
+        }
+        
+        .tutorial p {
+            margin-bottom: 15px;
+        }
+        
+        .close-tutorial {
+            margin-top: 15px;
+        }
+        
+        .planet-label {
+            color: white;
+            font-size: 12px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 3px 8px;
+            border-radius: 10px;
+            pointer-events: none;
+        }
+        
+        .mission-objective {
+            background-color: rgba(0, 100, 200, 0.3);
+            border-left: 3px solid #4fc3f7;
+            padding: 8px;
+            margin: 10px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .mission-complete {
+            background-color: rgba(0, 150, 50, 0.3);
+            border-left: 3px solid #4caf50;
+        }
+        
+        .mission-failed {
+            background-color: rgba(150, 0, 0, 0.3);
+            border-left: 3px solid #f44336;
+        }
+        
+        .fuel-bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        
+        .fuel-bar {
+            height: 100%;
+            width: 100%;
+            background-color: #4caf50;
+            transition: width 0.3s;
+        }
+        
+        .fuel-low {
+            background-color: #f44336;
+        }
+        
+        /* Media Queries para dispositivos móviles y tablets */
+        @media screen and (max-width: 768px) {
+            .panel {
+                padding: 8px;
+                margin: 5px;
+            }
+            
+            .info-panel, .mission-panel, .controls-panel, .target-panel {
+                width: calc(100vw - 20px);
+                max-width: 350px;
+                position: fixed;
+            }
+            
+            .info-panel {
+                top: 5px;
+                right: 5px;
+                left: auto;
+                width: calc(50vw - 10px);
+                max-height: 35vh;
+                font-size: 12px;
+            }
+            
+            .mission-panel {
+                top: 5px;
+                left: 5px;
+                right: auto;
+                width: calc(50vw - 10px);
+                max-height: 35vh;
+                font-size: 12px;
+            }
+            
+            .controls-panel {
+                display: none;
+            }
+            
+            .target-panel {
+                bottom: 120px;
+                right: 5px;
+                left: auto;
+                width: calc(100vw - 10px);
+                max-height: 25vh;
+            }
+            
+            .ship-controls {
+                display: none;
+            }
+            
+            .mobile-controls {
+                display: block;
+                bottom: 5px;
+                padding: 10px;
+            }
+            
+            .touch-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 18px;
+            }
+            
+            h2 {
+                font-size: 14px;
+                margin-bottom: 6px;
+            }
+            
+            p {
+                font-size: 11px;
+                margin-bottom: 4px;
+            }
+            
+            .btn {
+                padding: 8px 12px;
+                font-size: 10px;
+                min-height: 40px;
+                min-width: 40px;
+            }
+            
+            .loading-title {
+                font-size: 24px;
+            }
+            
+            .loading-bar-container {
+                width: 250px;
+            }
+            
+            .tutorial {
+                max-width: 90vw;
+                padding: 15px;
+                margin: 10px;
+            }
+        }
+        
+        @media screen and (max-width: 480px) {
+            .info-panel, .mission-panel {
+                width: calc(100vw - 10px);
+                max-height: 30vh;
+            }
+            
+            .target-panel {
+                bottom: 100px;
+                max-height: 20vh;
+            }
+            
+            .touch-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 16px;
+            }
+            
+            .control-row {
+                gap: 10px;
+            }
+            
+            h2 {
+                font-size: 12px;
+            }
+            
+            p {
+                font-size: 10px;
+            }
+            
+            .btn {
+                padding: 6px 10px;
+                font-size: 9px;
+            }
+        }
+        
+        @media screen and (orientation: landscape) and (max-height: 500px) {
+            .info-panel, .mission-panel {
+                max-height: 25vh;
+                width: calc(45vw - 10px);
+            }
+            
+            .target-panel {
+                bottom: 80px;
+                max-height: 20vh;
+            }
+            
+            .mobile-controls {
+                bottom: 5px;
+            }
+            
+            .touch-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 14px;
+            }
+        }
+        
+        /* Media queries específicas para tablets */
+        @media screen and (min-width: 769px) and (max-width: 1024px) {
+            .panel {
+                padding: 12px;
+            }
+            
+            .info-panel, .mission-panel, .controls-panel, .target-panel {
+                width: 320px;
+            }
+            
+            .mobile-controls {
+                display: block;
+                bottom: 15px;
+                width: 350px;
+            }
+            
+            .ship-controls {
+                display: none;
+            }
+            
+            .touch-btn {
+                width: 65px;
+                height: 65px;
+                font-size: 22px;
+            }
+            
+            h2 {
+                font-size: 18px;
+            }
+            
+            p {
+                font-size: 14px;
+            }
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(10, 20, 40, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 150, 255, 0.7);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .game-over h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #f44336;
+        }
+        
+        .mission-success {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(10, 20, 40, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 150, 255, 0.7);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .mission-success h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #4caf50;
+        }
+        
+        .score {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        
+        .resource-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .resource-name {
+            font-weight: bold;
+        }
+        
+        .resource-value {
+            color: #4fc3f7;
+        }
+        
+        .alert {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(200, 0, 0, 0.8);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            animation: fadeInOut 2s ease-in-out;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        .thruster {
+            position: absolute;
+            width: 20px;
+            height: 40px;
+            background: linear-gradient(to bottom, rgba(255,100,0,0.8), rgba(255,200,0,0.4), transparent);
+            border-radius: 50% 50% 0 0;
+            transform-origin: center bottom;
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .panel {
+                width: 250px !important;
+                padding: 10px;
+                font-size: 12px;
+            }
+            
+            .info-panel, .mission-panel {
+                top: 10px;
+                width: 250px;
+            }
+            
+            .controls-panel, .target-panel {
+                bottom: 10px;
+                width: 250px;
+            }
+            
+            .info-panel {
+                right: 10px;
+            }
+            
+            .mission-panel {
+                left: 10px;
+            }
+            
+            .controls-panel {
+                left: 10px;
+            }
+            
+            .target-panel {
+                right: 10px;
+            }
+            
+            .ship-controls {
+                width: 250px;
+            }
+            
+            h2 {
+                font-size: 14px;
+            }
+            
+            p {
+                font-size: 12px;
+            }
+            
+            .btn {
+                padding: 6px 10px;
+                font-size: 10px;
+                margin: 3px;
+            }
+            
+            .loading-title {
+                font-size: 24px;
+            }
+            
+            .tutorial {
+                max-width: 90%;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .panel {
+                width: 200px !important;
+                padding: 8px;
+            }
+            
+            .ship-controls {
+                width: 200px;
+            }
+            
+            .loading-title {
+                font-size: 20px;
+            }
+            
+            .loading-bar-container {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-screen">
+        <h1 class="loading-title">Explorador Espacial: La Aventura</h1>
+        <div class="loading-bar-container">
+            <div class="loading-bar" id="loading-bar"></div>
+        </div>
+    </div>
+    
+    <canvas id="canvas"></canvas>
+    
+    <div class="ui-container">
+        <div class="panel info-panel">
+            <h2 id="object-name">Sistema Solar</h2>
+            <div id="object-info">
+                <p>Bienvenido al explorador interactivo del Sistema Solar. Selecciona un cuerpo celeste para obtener más información.</p>
+                <p>Usa el ratón para navegar: <br>
+                   - Clic izquierdo + arrastrar: Rotar vista<br>
+                   - Rueda del ratón: Zoom<br>
+                   - Clic derecho + arrastrar: Mover vista</p>
+            </div>
+        </div>
+        
+        <div class="panel mission-panel">
+            <h2>Misión Actual</h2>
+            <div id="mission-description">
+                <p>Bienvenido, explorador espacial. Tu misión es recolectar datos científicos de diferentes cuerpos celestes y completar misiones de exploración.</p>
+                <div class="mission-objective" id="mission-objective-1">
+                    <p>Inicia tu primera misión haciendo clic en "Comenzar Juego"</p>
+                </div>
+            </div>
+            <div class="resource-indicator">
+                <span class="resource-name">Puntuación:</span>
+                <span class="resource-value" id="score-value">0</span>
+            </div>
+            <div class="resource-indicator">
+                <span class="resource-name">Combustible:</span>
+                <span class="resource-value" id="fuel-value">100%</span>
+            </div>
+            <div class="fuel-bar-container">
+                <div class="fuel-bar" id="fuel-bar"></div>
+            </div>
+            <button class="btn success" id="btn-start-game">Comenzar Juego</button>
+        </div>
+        
+        <div class="panel controls-panel">
+            <h2>Controles</h2>
+            <button class="btn" id="btn-tutorial">Tutorial</button>
+            <button class="btn" id="btn-reset-view">Restablecer Vista</button>
+            <button class="btn" id="btn-toggle-orbits">Mostrar Órbitas</button>
+            <button class="btn" id="btn-toggle-labels">Mostrar Etiquetas</button>
+            <div class="slider-container">
+                <label for="speed-slider">Velocidad de Simulación: <span id="speed-value">1x</span></label>
+                <input type="range" min="0" max="5" step="0.1" value="1" class="slider" id="speed-slider">
+            </div>
+        </div>
+        
+        <div class="panel target-panel">
+            <h2>Destinos</h2>
+            <button class="btn" id="btn-target-sun">Sol</button>
+            <button class="btn" id="btn-target-earth">Tierra</button>
+            <button class="btn" id="btn-target-moon">Luna</button>
+            <button class="btn" id="btn-target-mars">Marte</button>
+            <div class="slider-container">
+                <label for="scale-slider">Escala de Planetas: <span id="scale-value">1x</span></label>
+                <input type="range" min="0.5" max="3" step="0.1" value="1" class="slider" id="scale-slider">
+            </div>
+        </div>
+        
+        <div class="panel ship-controls" id="ship-controls">
+            <h2>Control de Nave</h2>
+            <button class="btn" id="btn-thrust">Propulsión (W)</button>
+            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                <button class="btn" id="btn-left">Izquierda (A)</button>
+                <button class="btn" id="btn-right">Derecha (D)</button>
+            </div>
+            <button class="btn success" id="btn-collect" style="margin-top: 10px;">Recolectar Datos (E)</button>
+        </div>
+        
+        <!-- Controles móviles optimizados -->
+        <div class="mobile-controls" id="mobile-controls">
+            <div class="control-row">
+                <button class="touch-btn" id="mobile-thrust">⬆</button>
+            </div>
+            <div class="control-row">
+                <button class="touch-btn" id="mobile-left">⬅</button>
+                <button class="touch-btn" id="mobile-collect">📡</button>
+                <button class="touch-btn" id="mobile-right">➡</button>
+            </div>
+            <div class="control-row">
+                <button class="touch-btn" id="mobile-brake">⬇</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tooltip" id="tooltip"></div>
+    
+    <div class="tutorial" id="tutorial">
+        <h2>Bienvenido a Explorador Espacial: La Aventura</h2>
+        <p>Este juego te permite explorar el Sistema Solar y completar misiones de exploración.</p>
+        <p><strong>Navegación:</strong><br>
+           - Clic izquierdo + arrastrar: Rotar la vista<br>
+           - Rueda del ratón: Acercar/alejar<br>
+           - Clic derecho + arrastrar: Mover la vista</p>
+        <p><strong>Controles de la nave:</strong><br>
+           - W o botón Propulsión: Acelerar<br>
+           - A o botón Izquierda: Girar a la izquierda<br>
+           - D o botón Derecha: Girar a la derecha<br>
+           - E o botón Recolectar: Recolectar datos (cuando estés cerca de un objetivo)</p>
+        <p><strong>Objetivo:</strong><br>
+           Completa las misiones recolectando datos de diferentes cuerpos celestes. Cuidado con el combustible y las colisiones.</p>
+        <button class="btn close-tutorial" id="btn-close-tutorial">Entendido</button>
+    </div>
+    
+    <div class="game-over" id="game-over">
+        <h1>Misión Fallida</h1>
+        <p id="game-over-reason">Te has quedado sin combustible.</p>
+        <p class="score">Puntuación final: <span id="final-score">0</span></p>
+        <button class="btn success" id="btn-restart">Reiniciar Misión</button>
+    </div>
+    
+    <div class="mission-success" id="mission-success">
+        <h1>¡Misión Completada!</h1>
+        <p id="mission-success-message">Has completado todas las misiones con éxito.</p>
+        <p class="score">Puntuación final: <span id="success-score">0</span></p>
+        <button class="btn success" id="btn-next-mission">Siguiente Misión</button>
+    </div>
+    
+    <div class="alert" id="alert"></div>
+    
+    <div class="thruster" id="thruster-main"></div>
+    <div class="thruster" id="thruster-left"></div>
+    <div class="thruster" id="thruster-right"></div>
+
+    <script>
+        // Variables globales
+        let scene, camera, renderer, controls;
+        let sun, earth, moon, mars;
+        let earthOrbit, moonOrbit, marsOrbit;
+        let planetLabels = {};
+        let clock = new THREE.Clock();
+        let simulationSpeed = 1;
+        let planetScale = 1;
+        let showOrbits = true;
+        let showLabels = true;
+        let selectedObject = null;
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        let tooltip = document.getElementById('tooltip');
+        
+        // Variables del juego
+        let gameActive = false;
+        let spaceship;
+        let spaceshipControls = {
+            thrust: false,
+            left: false,
+            right: false
+        };
+        let spaceshipVelocity = new THREE.Vector3(0, 0, 0);
+        let spaceshipRotation = 0;
+        let fuel = 100;
+        let score = 0;
+        let currentMission = 0;
+        let missions = [
+            {
+                title: "Primer Contacto",
+                description: "Inicia tu carrera como explorador espacial visitando la Luna.",
+                objectives: [
+                    {
+                        target: "Luna",
+                        description: "Visita la Luna y recolecta datos",
+                        completed: false,
+                        reward: 100
+                    }
+                ]
+            },
+            {
+                title: "Exploración Marciana",
+                description: "Es hora de aventurarse más lejos. Visita Marte y recolecta datos científicos.",
+                objectives: [
+                    {
+                        target: "Marte",
+                        description: "Visita Marte y recolecta datos",
+                        completed: false,
+                        reward: 200
+                    }
+                ]
+            },
+            {
+                title: "Estudio Solar",
+                description: "Acércate al Sol para estudiar su actividad. ¡Cuidado con el calor!",
+                objectives: [
+                    {
+                        target: "Sol",
+                        description: "Acércate al Sol y recolecta datos",
+                        completed: false,
+                        reward: 300
+                    }
+                ]
+            },
+            {
+                title: "Misión Completa",
+                description: "Regresa a la Tierra para completar tu misión.",
+                objectives: [
+                    {
+                        target: "Tierra",
+                        description: "Regresa a la Tierra para completar tu misión",
+                        completed: false,
+                        reward: 400
+                    }
+                ]
+            }
+        ];
+        
+        let objectInfo = {
+            "Sol": {
+                name: "Sol",
+                diameter: "1.392.000 km",
+                mass: "1,989 × 10^30 kg",
+                description: "El Sol es la estrella central del Sistema Solar. Es una esfera casi perfecta de plasma caliente que proporciona la mayor parte de la energía de nuestro sistema.",
+                scienceData: "Temperatura superficial: 5.500°C. Núcleo: fusión nuclear de hidrógeno en helio."
+            },
+            "Tierra": {
+                name: "Tierra",
+                diameter: "12.742 km",
+                mass: "5,972 × 10^24 kg",
+                distance: "149,6 millones km del Sol",
+                orbitalPeriod: "365,25 días",
+                description: "La Tierra es el tercer planeta desde el Sol y el único lugar conocido en el universo donde existe vida. Aproximadamente el 71% de su superficie está cubierta de agua.",
+                scienceData: "Atmósfera: 78% nitrógeno, 21% oxígeno. Único planeta con agua líquida en superficie."
+            },
+            "Luna": {
+                name: "Luna",
+                diameter: "3.474 km",
+                mass: "7,342 × 10^22 kg",
+                distance: "384.400 km de la Tierra",
+                orbitalPeriod: "27,3 días",
+                description: "La Luna es el único satélite natural de la Tierra y el quinto satélite más grande del Sistema Solar. Su presencia estabiliza la inclinación del eje de la Tierra.",
+                scienceData: "Sin atmósfera significativa. Superficie cubierta de regolito. Evidencia de actividad volcánica pasada."
+            },
+            "Marte": {
+                name: "Marte",
+                diameter: "6.779 km",
+                mass: "6,39 × 10^23 kg",
+                distance: "227,9 millones km del Sol",
+                orbitalPeriod: "687 días",
+                description: "Marte es el cuarto planeta desde el Sol. Conocido como el 'Planeta Rojo' debido a la presencia de óxido de hierro en su superficie que le da un aspecto rojizo.",
+                scienceData: "Atmósfera tenue de CO2. Evidencia de agua líquida en el pasado. Dos lunas pequeñas: Fobos y Deimos."
+            }
+        };
+
+        // Inicialización
+        init();
+        animate();
+
+        // Pantalla de carga
+        simulateLoading();
+
+        function simulateLoading() {
+            const loadingBar = document.getElementById('loading-bar');
+            const loadingScreen = document.querySelector('.loading-screen');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    setTimeout(() => {
+                        loadingScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                            showTutorial();
+                        }, 1000);
+                    }, 500);
+                }
+                loadingBar.style.width = progress + '%';
+            }, 200);
+        }
+
+        function showTutorial() {
+            document.getElementById('tutorial').style.display = 'block';
+        }
+
+        function createStarBackground() {
+            const starGeometry = new THREE.BufferGeometry();
+            const starCount = 5000;
+            
+            const positions = new Float32Array(starCount * 3);
+            const sizes = new Float32Array(starCount);
+            
+            for (let i = 0; i < starCount; i++) {
+                const i3 = i * 3;
+                positions[i3] = (Math.random() - 0.5) * 2000;
+                positions[i3 + 1] = (Math.random() - 0.5) * 2000;
+                positions[i3 + 2] = (Math.random() - 0.5) * 2000;
+                
+                sizes[i] = Math.random() * 2;
+            }
+            
+            starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            starGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+            
+            const starMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 1,
+                transparent: true,
+                sizeAttenuation: true,
+                depthWrite: false
+            });
+            
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+        }
+
+        function createCelestialBodies() {
+            // Sol
+            const sunGeometry = new THREE.SphereGeometry(10, 32, 32);
+            const sunMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffff00,
+                emissive: 0xff5500,
+                emissiveIntensity: 0.5
+            });
+            sun = new THREE.Mesh(sunGeometry, sunMaterial);
+            scene.add(sun);
+            
+            // Luz del sol
+            const sunLight = new THREE.PointLight(0xffffff, 1.5, 1000);
+            sun.add(sunLight);
+            
+            // Órbitas
+            const orbitMaterial = new THREE.LineBasicMaterial({ color: 0x444444 });
+            
+            // Tierra y su órbita
+            const earthOrbitRadius = 50;
+            earthOrbit = createOrbit(earthOrbitRadius, orbitMaterial);
+            scene.add(earthOrbit);
+            
+            const earthGeometry = new THREE.SphereGeometry(3, 32, 16);
+            const earthMaterial = new THREE.MeshLambertMaterial({
+                color: 0x2233ff,
+                emissive: 0x112244,
+                emissiveIntensity: 0.2
+            });
+            earth = new THREE.Mesh(earthGeometry, earthMaterial);
+            earth.position.x = earthOrbitRadius;
+            scene.add(earth);
+            
+            // Luna y su órbita
+            const moonOrbitRadius = 8;
+            moonOrbit = createOrbit(moonOrbitRadius, orbitMaterial);
+            earth.add(moonOrbit);
+            
+            const moonGeometry = new THREE.SphereGeometry(0.8, 32, 16);
+            const moonMaterial = new THREE.MeshLambertMaterial({
+                color: 0x888888,
+                emissive: 0x222222,
+                emissiveIntensity: 0.2
+            });
+            moon = new THREE.Mesh(moonGeometry, moonMaterial);
+            moon.position.x = moonOrbitRadius;
+            earth.add(moon);
+            
+            // Marte y su órbita
+            const marsOrbitRadius = 75;
+            marsOrbit = createOrbit(marsOrbitRadius, orbitMaterial);
+            scene.add(marsOrbit);
+            
+            const marsGeometry = new THREE.SphereGeometry(2, 32, 16);
+            const marsMaterial = new THREE.MeshLambertMaterial({
+                color: 0xff4400,
+                emissive: 0x441100,
+                emissiveIntensity: 0.2
+            });
+            mars = new THREE.Mesh(marsGeometry, marsMaterial);
+            mars.position.x = marsOrbitRadius;
+            scene.add(mars);
+            
+            // Añadir nombres a los objetos para identificación
+            sun.name = "Sol";
+            earth.name = "Tierra";
+            moon.name = "Luna";
+            mars.name = "Marte";
+            
+            // Crear etiquetas para los planetas
+            createPlanetLabel(sun, "Sol");
+            createPlanetLabel(earth, "Tierra");
+            createPlanetLabel(moon, "Luna");
+            createPlanetLabel(mars, "Marte");
+        }
+
+        function createSpaceship() {
+            // Cuerpo principal
+            const bodyGeometry = new THREE.ConeGeometry(1, 3, 8);
+            const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0x888888 });
+            spaceship = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            spaceship.rotation.x = Math.PI / 2;
+            
+            // Alas
+            const wingGeometry = new THREE.BoxGeometry(3, 0.2, 1);
+            const wingMaterial = new THREE.MeshLambertMaterial({ color: 0x555555 });
+            const wings = new THREE.Mesh(wingGeometry, wingMaterial);
+            wings.position.z = -0.5;
+            spaceship.add(wings);
+            
+            // Cabina
+            const cabinGeometry = new THREE.SphereGeometry(0.5, 16, 8);
+            const cabinMaterial = new THREE.MeshLambertMaterial({ color: 0x88ccff });
+            const cabin = new THREE.Mesh(cabinGeometry, cabinMaterial);
+            cabin.position.z = 0.5;
+            cabin.scale.z = 0.5;
+            spaceship.add(cabin);
+            
+            // Posición inicial
+            spaceship.position.set(earth.position.x + 10, earth.position.y, earth.position.z);
+            spaceship.visible = false;
+            scene.add(spaceship);
+            
+            // Configurar propulsores
+            const thrusterMain = document.getElementById('thruster-main');
+            const thrusterLeft = document.getElementById('thruster-left');
+            const thrusterRight = document.getElementById('thruster-right');
+        }
+
+        function createOrbit(radius, material) {
+            const orbitGeometry = new THREE.BufferGeometry();
+            const vertices = [];
+            
+            const segments = 128;
+            for (let i = 0; i <= segments; i++) {
+                const theta = (i / segments) * Math.PI * 2;
+                vertices.push(
+                    radius * Math.cos(theta),
+                    0,
+                    radius * Math.sin(theta)
+                );
+            }
+            
+            orbitGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            return new THREE.Line(orbitGeometry, material);
+        }
+
+        function createPlanetLabel(planet, name) {
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'planet-label';
+            labelDiv.textContent = name;
+            labelDiv.style.display = showLabels ? 'block' : 'none';
+            
+            document.querySelector('.ui-container').appendChild(labelDiv);
+            planetLabels[name] = labelDiv;
+        }
+
+        function updatePlanetLabels() {
+            const tempV = new THREE.Vector3();
+            
+            Object.keys(planetLabels).forEach(name => {
+                let object;
+                
+                if (name === "Sol") object = sun;
+                else if (name === "Tierra") object = earth;
+                else if (name === "Luna") object = moon;
+                else if (name === "Marte") object = mars;
+                
+                if (object) {
+                    // Obtener posición en espacio mundial para la Luna
+                    if (name === "Luna") {
+                        tempV.copy(object.position);
+                        earth.updateMatrixWorld();
+                        tempV.applyMatrix4(earth.matrixWorld);
+                    } else {
+                        tempV.copy(object.position);
+                    }
+                    
+                    tempV.project(camera);
+                    
+                    const x = (tempV.x * 0.5 + 0.5) * window.innerWidth;
+                    const y = (- tempV.y * 0.5 + 0.5) * window.innerHeight;
+                    
+                    if (tempV.z < 1) { // Solo mostrar si está frente a la cámara
+                        planetLabels[name].style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+                        planetLabels[name].style.display = showLabels ? 'block' : 'none';
+                    } else {
+                        planetLabels[name].style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const delta = clock.getDelta() * simulationSpeed;
+            
+            // Rotación de los planetas
+            sun.rotation.y += 0.01 * delta;
+            earth.rotation.y += 0.02 * delta;
+            moon.rotation.y += 0.002 * delta;
+            mars.rotation.y += 0.018 * delta;
+            
+            // Órbitas
+            earth.position.x = Math.cos(Date.now() * 0.0001 * simulationSpeed) * 50;
+            earth.position.z = Math.sin(Date.now() * 0.0001 * simulationSpeed) * 50;
+            
+            mars.position.x = Math.cos(Date.now() * 0.00005 * simulationSpeed) * 75;
+            mars.position.z = Math.sin(Date.now() * 0.00005 * simulationSpeed) * 75;
+            
+            // Actualizar controles y etiquetas
+            controls.update();
+            updatePlanetLabels();
+            
+            // Actualizar nave espacial si el juego está activo
+            if (gameActive) {
+                updateSpaceship(delta);
+                checkCollisions();
+                checkMissionObjectives();
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        function updateSpaceship(delta) {
+            // Aplicar rotación
+            if (spaceshipControls.left) {
+                spaceshipRotation += 2 * delta;
+            }
+            if (spaceshipControls.right) {
+                spaceshipRotation -= 2 * delta;
+            }
+            
+            // Aplicar propulsión
+            if (spaceshipControls.thrust && fuel > 0) {
+                // Calcular dirección basada en la rotación
+                const thrustPower = 10 * delta;
+                spaceshipVelocity.x += Math.cos(spaceshipRotation) * thrustPower;
+                spaceshipVelocity.z += Math.sin(spaceshipRotation) * thrustPower;
+                
+                // Consumir combustible
+                fuel -= 5 * delta;
+                if (fuel < 0) fuel = 0;
+                
+                // Mostrar propulsor
+                document.getElementById('thruster-main').style.display = 'block';
+            } else {
+                document.getElementById('thruster-main').style.display = 'none';
+            }
+            
+            // Mostrar propulsores laterales
+            document.getElementById('thruster-left').style.display = spaceshipControls.right ? 'block' : 'none';
+            document.getElementById('thruster-right').style.display = spaceshipControls.left ? 'block' : 'none';
+            
+            // Aplicar gravedad de los cuerpos celestes
+            applyGravity(sun, 2000);
+            applyGravity(earth, 500);
+            applyGravity(mars, 300);
+            
+            // Aplicar fricción espacial (muy pequeña)
+            spaceshipVelocity.multiplyScalar(0.99);
+            
+            // Actualizar posición
+            spaceship.position.x += spaceshipVelocity.x * delta;
+            spaceship.position.z += spaceshipVelocity.z * delta;
+            
+            // Actualizar rotación
+            spaceship.rotation.y = spaceshipRotation;
+            
+            // Actualizar UI
+            document.getElementById('fuel-value').textContent = Math.round(fuel) + '%';
+            document.getElementById('fuel-bar').style.width = fuel + '%';
+            
+            if (fuel < 20) {
+                document.getElementById('fuel-bar').classList.add('fuel-low');
+            } else {
+                document.getElementById('fuel-bar').classList.remove('fuel-low');
+            }
+            
+            // Actualizar posición de los propulsores
+            updateThrusterPositions();
+            
+            // Seguir la nave con la cámara
+            if (gameActive) {
+                camera.position.x = spaceship.position.x - 15 * Math.cos(spaceshipRotation);
+                camera.position.z = spaceship.position.z - 15 * Math.sin(spaceshipRotation);
+                camera.position.y = spaceship.position.y + 5;
+                camera.lookAt(spaceship.position);
+            }
+        }
+
+        function applyGravity(celestialBody, gravityStrength) {
+            const direction = new THREE.Vector3();
+            direction.subVectors(celestialBody.position, spaceship.position);
+            
+            const distance = direction.length();
+            direction.normalize();
+            
+            // Fuerza de gravedad inversamente proporcional al cuadrado de la distancia
+            const force = gravityStrength / (distance * distance);
+            
+            // Aplicar fuerza de gravedad a la velocidad
+            spaceshipVelocity.x += direction.x * force * 0.01;
+            spaceshipVelocity.z += direction.z * force * 0.01;
+        }
+
+        function updateThrusterPositions() {
+            const thrusterMain = document.getElementById('thruster-main');
+            const thrusterLeft = document.getElementById('thruster-left');
+            const thrusterRight = document.getElementById('thruster-right');
+            
+            // Convertir posición 3D a coordenadas de pantalla
+            const tempV = new THREE.Vector3();
+            tempV.copy(spaceship.position);
+            tempV.project(camera);
+            
+            const x = (tempV.x * 0.5 + 0.5) * window.innerWidth;
+            const y = (- tempV.y * 0.5 + 0.5) * window.innerHeight;
+            
+            // Posicionar propulsores
+            const angle = spaceshipRotation * (180 / Math.PI);
+            
+            thrusterMain.style.transform = `translate(-50%, 0) translate(${x}px, ${y}px) rotate(${angle}deg)`;
+            thrusterLeft.style.transform = `translate(-50%, 0) translate(${x - 10}px, ${y}px) rotate(${angle + 90}deg)`;
+            thrusterRight.style.transform = `translate(-50%, 0) translate(${x + 10}px, ${y}px) rotate(${angle - 90}deg)`;
+        }
+
+        function checkCollisions() {
+            // Verificar colisión con el Sol
+            if (distanceTo(sun) < 12) {
+                gameOver("¡Te has acercado demasiado al Sol y tu nave se ha desintegrado!");
+                return;
+            }
+            
+            // Verificar colisión con la Tierra
+            if (distanceTo(earth) < 5) {
+                if (currentMission === 3 && !missions[currentMission].objectives[0].completed) {
+                    // Aterrizaje exitoso en la Tierra para la misión final
+                    collectData();
+                } else {
+                    gameOver("¡Has chocado contra la Tierra!");
+                }
+                return;
+            }
+            
+            // Verificar colisión con Marte
+            if (distanceTo(mars) < 4) {
+                gameOver("¡Has chocado contra Marte!");
+                return;
+            }
+            
+            // Verificar combustible
+            if (fuel <= 0) {
+                gameOver("¡Te has quedado sin combustible y estás a la deriva en el espacio!");
+                return;
+            }
+        }
+
+        function distanceTo(object) {
+            const distance = new THREE.Vector3();
+            distance.subVectors(spaceship.position, object.position);
+            return distance.length();
+        }
+
+        function checkMissionObjectives() {
+            if (currentMission >= missions.length) return;
+            
+            const mission = missions[currentMission];
+            let allCompleted = true;
+            
+            mission.objectives.forEach(objective => {
+                if (!objective.completed) {
+                    let targetObject;
+                    
+                    if (objective.target === "Sol") targetObject = sun;
+                    else if (objective.target === "Tierra") targetObject = earth;
+                    else if (objective.target === "Luna") {
+                        // Posición mundial de la Luna
+                        const moonWorldPos = new THREE.Vector3();
+                        moon.getWorldPosition(moonWorldPos);
+                        
+                        if (spaceship.position.distanceTo(moonWorldPos) < 5) {
+                            showAlert("Presiona E o el botón 'Recolectar Datos' para completar el objetivo");
+                        }
+                        
+                        allCompleted = false;
+                        return;
+                    }
+                    else if (objective.target === "Marte") targetObject = mars;
+                    
+                    if (targetObject && spaceship.position.distanceTo(targetObject.position) < 10) {
+                        showAlert("Presiona E o el botón 'Recolectar Datos' para completar el objetivo");
+                    }
+                    
+                    allCompleted = false;
+                }
+            });
+            
+            if (allCompleted) {
+                missionComplete();
+            }
+        }
+
+        function collectData() {
+            if (!gameActive) return;
+            
+            if (currentMission >= missions.length) return;
+            
+            const mission = missions[currentMission];
+            let dataCollected = false;
+            
+            mission.objectives.forEach(objective => {
+                if (!objective.completed) {
+                    let targetObject, targetPos;
+                    
+                    if (objective.target === "Sol") targetObject = sun;
+                    else if (objective.target === "Tierra") targetObject = earth;
+                    else if (objective.target === "Luna") {
+                        // Posición mundial de la Luna
+                        targetPos = new THREE.Vector3();
+                        moon.getWorldPosition(targetPos);
+                    }
+                    else if (objective.target === "Marte") targetObject = mars;
+                    
+                    const distance = objective.target === "Luna" 
+                        ? spaceship.position.distanceTo(targetPos)
+                        : spaceship.position.distanceTo(targetObject.position);
+                    
+                    if (distance < 10) {
+                        objective.completed = true;
+                        score += objective.reward;
+                        document.getElementById('score-value').textContent = score;
+                        
+                        showAlert(`¡Datos de ${objective.target} recolectados! +${objective.reward} puntos`);
+                        
+                        updateMissionUI();
+                        dataCollected = true;
+                    }
+                }
+            });
+            
+            if (!dataCollected) {
+                showAlert("No hay nada para recolectar aquí");
+            }
+        }
+
+        function updateMissionUI() {
+            if (currentMission >= missions.length) return;
+            
+            const mission = missions[currentMission];
+            let objectivesHTML = `<p>${mission.description}</p>`;
+            
+            mission.objectives.forEach((objective, index) => {
+                const objectiveClass = objective.completed ? "mission-objective mission-complete" : "mission-objective";
+                objectivesHTML += `<div class="${objectiveClass}" id="mission-objective-${index + 1}">
+                    <p>${objective.description} ${objective.completed ? '✓' : ''}</p>
+                </div>`;
+            });
+            
+            document.getElementById('mission-description').innerHTML = objectivesHTML;
+        }
+
+        function startGame() {
+            gameActive = true;
+            spaceship.visible = true;
+            
+            // Mostrar controles apropiados según el dispositivo
+            if (isMobileDevice()) {
+                document.getElementById('mobile-controls').style.display = 'block';
+                document.getElementById('ship-controls').style.display = 'none';
+            } else {
+                document.getElementById('ship-controls').style.display = 'block';
+                document.getElementById('mobile-controls').style.display = 'none';
+            }
+            
+            document.getElementById('btn-start-game').style.display = 'none';
+            
+            // Posicionar nave cerca de la Tierra
+            spaceship.position.set(earth.position.x + 10, earth.position.y, earth.position.z);
+            spaceshipVelocity.set(0, 0, 0);
+            
+            // Restablecer valores
+            fuel = 100;
+            
+            // Actualizar UI de misión
+            updateMissionUI();
+            
+            // Desactivar controles de órbita
+            controls.enabled = false;
+            
+            // Seguir la nave con la cámara
+            camera.position.set(
+                spaceship.position.x - 15,
+                spaceship.position.y + 5,
+                spaceship.position.z
+            );
+            camera.lookAt(spaceship.position);
+        }
+
+        function restartGame() {
+            document.getElementById('game-over').style.display = 'none';
+            
+            // Restablecer valores
+            fuel = 100;
+            score = 0;
+            currentMission = 0;
+            
+            // Restablecer misiones
+            missions.forEach(mission => {
+                mission.objectives.forEach(objective => {
+                    objective.completed = false;
+                });
+            });
+            
+            document.getElementById('score-value').textContent = score;
+            
+            startGame();
+        }
+
+        function gameOver(reason) {
+            gameActive = false;
+            document.getElementById('game-over-reason').textContent = reason;
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('game-over').style.display = 'block';
+            
+            // Ocultar controles de nave
+            document.getElementById('ship-controls').style.display = 'none';
+            
+            // Reactivar controles de órbita
+            controls.enabled = true;
+        }
+
+        function missionComplete() {
+            document.getElementById('mission-success').style.display = 'block';
+            document.getElementById('success-score').textContent = score;
+            
+            if (currentMission < missions.length - 1) {
+                document.getElementById('mission-success-message').textContent = 
+                    `¡Has completado la misión "${missions[currentMission].title}"!`;
+                document.getElementById('btn-next-mission').textContent = "Siguiente Misión";
+            } else {
+                document.getElementById('mission-success-message').textContent = 
+                    "¡Felicidades! Has completado todas las misiones con éxito.";
+                document.getElementById('btn-next-mission').textContent = "Jugar de Nuevo";
+            }
+            
+            // Ocultar controles de nave
+            document.getElementById('ship-controls').style.display = 'none';
+            
+            // Reactivar controles de órbita
+            controls.enabled = true;
+            
+            gameActive = false;
+        }
+
+        function nextMission() {
+            document.getElementById('mission-success').style.display = 'none';
+            
+            if (currentMission < missions.length - 1) {
+                currentMission++;
+                updateMissionUI();
+                startGame();
+            } else {
+                // Reiniciar juego
+                restartGame();
+            }
+        }
+
+        function showAlert(message) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 2000);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onMouseMove(event) {
+            // Calcular posición del mouse normalizada
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Actualizar el raycaster
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Calcular objetos que intersectan con el rayo
+            const intersects = raycaster.intersectObjects([sun, earth, moon, mars]);
+            
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+                
+                // Mostrar tooltip
+                tooltip.style.display = 'block';
+                tooltip.style.left = event.clientX + 15 + 'px';
+                tooltip.style.top = event.clientY + 15 + 'px';
+                tooltip.textContent = object.name;
+                
+                document.body.style.cursor = 'pointer';
+            } else {
+                tooltip.style.display = 'none';
+                document.body.style.cursor = 'default';
+            }
+        }
+
+        function onMouseClick(event) {
+            if (gameActive) return;
+            
+            // Calcular posición del mouse normalizada
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Actualizar el raycaster
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Calcular objetos que intersectan con el rayo
+            const intersects = raycaster.intersectObjects([sun, earth, moon, mars]);
+            
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+                selectedObject = object;
+                updateInfoPanel(object.name);
+            }
+        }
+
+        function onKeyDown(event) {
+            if (!gameActive) return;
+            
+            switch(event.key.toLowerCase()) {
+                case 'w':
+                    spaceshipControls.thrust = true;
+                    break;
+                case 'a':
+                    spaceshipControls.left = true;
+                    break;
+                case 'd':
+                    spaceshipControls.right = true;
+                    break;
+                case 'e':
+                    collectData();
+                    break;
+            }
+        }
+
+        function onKeyUp(event) {
+            if (!gameActive) return;
+            
+            switch(event.key.toLowerCase()) {
+                case 'w':
+                    spaceshipControls.thrust = false;
+                    break;
+                case 'a':
+                    spaceshipControls.left = false;
+                    break;
+                case 'd':
+                    spaceshipControls.right = false;
+                    break;
+            }
+        }
+
+        function updateInfoPanel(objectName) {
+            const info = objectInfo[objectName];
+            if (!info) return;
+            
+            document.getElementById('object-name').textContent = info.name;
+            
+            let infoHTML = `<p><strong>Diámetro:</strong> ${info.diameter}</p>`;
+            infoHTML += `<p><strong>Masa:</strong> ${info.mass}</p>`;
+            
+            if (info.distance) {
+                infoHTML += `<p><strong>Distancia:</strong> ${info.distance}</p>`;
+            }
+            
+            if (info.orbitalPeriod) {
+                infoHTML += `<p><strong>Período orbital:</strong> ${info.orbitalPeriod}</p>`;
+            }
+            
+            infoHTML += `<p>${info.description}</p>`;
+            
+            if (info.scienceData) {
+                infoHTML += `<p><strong>Datos científicos:</strong> ${info.scienceData}</p>`;
+            }
+            
+            document.getElementById('object-info').innerHTML = infoHTML;
+        }
+
+        function resetView() {
+            camera.position.set(0, 30, 100);
+            controls.target.set(0, 0, 0);
+            controls.update();
+        }
+
+        function toggleOrbits() {
+            showOrbits = !showOrbits;
+            earthOrbit.visible = showOrbits;
+            moonOrbit.visible = showOrbits;
+            marsOrbit.visible = showOrbits;
+            
+            const btn = document.getElementById('btn-toggle-orbits');
+            if (showOrbits) {
+                btn.textContent = "Ocultar Órbitas";
+                btn.classList.add('active');
+            } else {
+                btn.textContent = "Mostrar Órbitas";
+                btn.classList.remove('active');
+            }
+        }
+
+        function toggleLabels() {
+            showLabels = !showLabels;
+            
+            const btn = document.getElementById('btn-toggle-labels');
+            if (showLabels) {
+                btn.textContent = "Ocultar Etiquetas";
+                btn.classList.add('active');
+            } else {
+                btn.textContent = "Mostrar Etiquetas";
+                btn.classList.remove('active');
+            }
+        }
+
+        function focusObject(object) {
+            if (gameActive) return;
+            
+            selectedObject = object;
+            updateInfoPanel(object.name);
+            
+            // Posición mundial para la Luna
+            if (object === moon) {
+                const worldPos = new THREE.Vector3();
+                moon.getWorldPosition(worldPos);
+                controls.target.copy(worldPos);
+                
+                const direction = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
+                camera.position.copy(worldPos).add(direction.multiplyScalar(20));
+            } else {
+                controls.target.copy(object.position);
+                
+                const distance = object === sun ? 30 : (object === earth ? 15 : 10);
+                const direction = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
+                camera.position.copy(object.position).add(direction.multiplyScalar(distance));
+            }
+            
+            controls.update();
+        }
+
+        function updatePlanetScale() {
+            earth.scale.set(planetScale, planetScale, planetScale);
+            mars.scale.set(planetScale, planetScale, planetScale);
+            moon.scale.set(planetScale, planetScale, planetScale);
+        }
+
+        // Función para detectar dispositivos móviles
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                   window.innerWidth <= 768;
+        }
+
+        // Funciones auxiliares necesarias
+        function updateLabels() {
+            if (!showLabels) return;
+            
+            // Actualizar posiciones de etiquetas si es necesario
+            Object.keys(planetLabels).forEach(name => {
+                const label = planetLabels[name];
+                if (label && label.element) {
+                    // Lógica para actualizar posición de etiquetas
+                }
+            });
+        }
+
+        function createPlanetLabel(planet, name) {
+            // Crear etiqueta para el planeta
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'planet-label';
+            labelDiv.textContent = name;
+            labelDiv.style.position = 'absolute';
+            labelDiv.style.pointerEvents = 'none';
+            document.body.appendChild(labelDiv);
+            
+            planetLabels[name] = {
+                element: labelDiv,
+                planet: planet
+            };
+        }
+
+        function createOrbit(radius, material) {
+            const orbitGeometry = new THREE.RingGeometry(radius - 0.1, radius + 0.1, 64);
+            const orbit = new THREE.Mesh(orbitGeometry, material);
+            orbit.rotation.x = -Math.PI / 2;
+            return orbit;
+        }
+
+        function updatePlanetScale() {
+            if (earth) earth.scale.set(planetScale, planetScale, planetScale);
+            if (mars) mars.scale.set(planetScale, planetScale, planetScale);
+            if (moon) moon.scale.set(planetScale, planetScale, planetScale);
+        }
+
+        function focusObject(object) {
+            if (gameActive) return;
+            
+            selectedObject = object;
+            updateInfoPanel(object.name);
+            
+            // Posición mundial para la Luna
+            if (object === moon) {
+                const worldPos = new THREE.Vector3();
+                moon.getWorldPosition(worldPos);
+                controls.target.copy(worldPos);
+                
+                const direction = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
+                camera.position.copy(worldPos).add(direction.multiplyScalar(20));
+            } else {
+                controls.target.copy(object.position);
+                
+                const distance = object === sun ? 30 : (object === earth ? 15 : 10);
+                const direction = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
+                camera.position.copy(object.position).add(direction.multiplyScalar(distance));
+            }
+            
+            controls.update();
+        }
+
+        // Función para detectar dispositivos móviles
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                   window.innerWidth <= 768;
+        }
+
+        // Inicialización de controles móviles
+        function initMobileControls() {
+            if (isMobileDevice()) {
+                document.getElementById('mobile-controls').style.display = 'block';
+                document.getElementById('ship-controls').style.display = 'none';
+                
+                // Controles táctiles
+                const mobileThrust = document.getElementById('mobile-thrust');
+                const mobileLeft = document.getElementById('mobile-left');
+                const mobileRight = document.getElementById('mobile-right');
+                const mobileCollect = document.getElementById('mobile-collect');
+                const mobileBrake = document.getElementById('mobile-brake');
+                
+                // Eventos táctiles para propulsión
+                mobileThrust.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    spaceshipControls.thrust = true;
+                });
+                mobileThrust.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    spaceshipControls.thrust = false;
+                });
+                
+                // Eventos táctiles para giros
+                mobileLeft.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    spaceshipControls.left = true;
+                });
+                mobileLeft.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    spaceshipControls.left = false;
+                });
+                
+                mobileRight.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    spaceshipControls.right = true;
+                });
+                mobileRight.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    spaceshipControls.right = false;
+                });
+                
+                // Evento táctil para recolectar datos
+                mobileCollect.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    collectData();
+                });
+                
+                // Evento táctil para frenar
+                mobileBrake.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    spaceshipVelocity.multiplyScalar(0.8);
+                });
+                
+                // También agregar eventos click como respaldo
+                mobileThrust.addEventListener('click', (e) => {
+                    e.preventDefault();
+                });
+                mobileLeft.addEventListener('click', (e) => {
+                    e.preventDefault();
+                });
+                mobileRight.addEventListener('click', (e) => {
+                    e.preventDefault();
+                });
+                mobileCollect.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    collectData();
+                });
+                mobileBrake.addEventListener('click', (e) => {
+                    e.preventDefault();
+                });
+                
+                // Mejorar los controles de cámara en móvil
+                if (controls) {
+                    controls.enablePan = true;
+                    controls.enableZoom = true;
+                    controls.enableRotate = true;
+                    controls.zoomSpeed = 0.5;
+                    controls.rotateSpeed = 0.5;
+                    controls.panSpeed = 0.3;
+                    controls.maxDistance = 200;
+                    controls.minDistance = 5;
+                }
+            }
+        }
+
+        // Optimización de rendimiento para móviles
+        function optimizeForMobile() {
+            if (isMobileDevice()) {
+                // Reducir calidad de renderizado en móviles
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                
+                // Reducir complejidad de geometrías
+                if (sun && earth && moon && mars) {
+                    const lowDetailGeometry = new THREE.SphereGeometry(1, 16, 12);
+                    
+                    earth.geometry = lowDetailGeometry.clone();
+                    earth.geometry.scale(earth.scale.x, earth.scale.y, earth.scale.z);
+                    
+                    moon.geometry = lowDetailGeometry.clone();
+                    moon.geometry.scale(0.3, 0.3, 0.3);
+                    
+                    mars.geometry = lowDetailGeometry.clone();
+                    mars.geometry.scale(0.5, 0.5, 0.5);
+                }
+                
+                // Limitar FPS en móviles
+                const targetFPS = 30;
+                const frameTime = 1000 / targetFPS;
+                let lastFrameTime = 0;
+                
+                const originalAnimate = animate;
+                animate = function() {
+                    const currentTime = performance.now();
+                    if (currentTime - lastFrameTime >= frameTime) {
+                        originalAnimate();
+                        lastFrameTime = currentTime;
+                    } else {
+                        requestAnimationFrame(animate);
+                    }
+                };
+            }
+        }
+
+        // Gestión de orientación en móviles
+        function handleOrientationChange() {
+            setTimeout(() => {
+                if (renderer && camera) {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                }
+            }, 100);
+        }
+
+        // Event listeners adicionales para móviles
+        window.addEventListener('orientationchange', handleOrientationChange);
+        window.addEventListener('resize', handleOrientationChange);
+
+        // Prevenir zoom accidental en iOS
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('gesturechange', function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('gestureend', function (e) {
+            e.preventDefault();
+        });
+
+        // Inicialización mejorada
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar la escena 3D
+            init();
+            animate();
+            
+            // Configurar controles móviles
+            initMobileControls();
+            optimizeForMobile();
+            
+            // Mostrar pantalla de carga
+            simulateLoading();
+        });
+        
+        // Función de inicialización principal
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+            camera.position.set(0, 30, 100);
+            
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
+            // Controles de órbita
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            // Iluminación
+            const ambientLight = new THREE.AmbientLight(0x333333);
+            scene.add(ambientLight);
+            
+            // Estrellas de fondo
+            createStarBackground();
+            
+            // Crear cuerpos celestes
+            createCelestialBodies();
+            
+            // Crear nave espacial
+            createSpaceship();
+            
+            // Event listeners
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('click', onMouseClick);
+            window.addEventListener('keydown', onKeyDown);
+            window.addEventListener('keyup', onKeyUp);
+            
+            // Botones UI
+            document.getElementById('btn-tutorial').addEventListener('click', showTutorial);
+            document.getElementById('btn-close-tutorial').addEventListener('click', () => {
+                document.getElementById('tutorial').style.display = 'none';
+            });
+            document.getElementById('btn-reset-view').addEventListener('click', resetView);
+            document.getElementById('btn-toggle-orbits').addEventListener('click', toggleOrbits);
+            document.getElementById('btn-toggle-labels').addEventListener('click', toggleLabels);
+            document.getElementById('btn-target-sun').addEventListener('click', () => focusObject(sun));
+            document.getElementById('btn-target-earth').addEventListener('click', () => focusObject(earth));
+            document.getElementById('btn-target-moon').addEventListener('click', () => focusObject(moon));
+            document.getElementById('btn-target-mars').addEventListener('click', () => focusObject(mars));
+            
+            // Botones de juego
+            document.getElementById('btn-start-game').addEventListener('click', startGame);
+            document.getElementById('btn-restart').addEventListener('click', restartGame);
+            document.getElementById('btn-next-mission').addEventListener('click', nextMission);
+            
+            // Botones de control de nave
+            document.getElementById('btn-thrust').addEventListener('mousedown', () => { spaceshipControls.thrust = true; });
+            document.getElementById('btn-thrust').addEventListener('mouseup', () => { spaceshipControls.thrust = false; });
+            document.getElementById('btn-thrust').addEventListener('mouseleave', () => { spaceshipControls.thrust = false; });
+            
+            document.getElementById('btn-left').addEventListener('mousedown', () => { spaceshipControls.left = true; });
+            document.getElementById('btn-left').addEventListener('mouseup', () => { spaceshipControls.left = false; });
+            document.getElementById('btn-left').addEventListener('mouseleave', () => { spaceshipControls.left = false; });
+            
+            document.getElementById('btn-right').addEventListener('mousedown', () => { spaceshipControls.right = true; });
+            document.getElementById('btn-right').addEventListener('mouseup', () => { spaceshipControls.right = false; });
+            document.getElementById('btn-right').addEventListener('mouseleave', () => { spaceshipControls.right = false; });
+            
+            document.getElementById('btn-collect').addEventListener('click', collectData);
+            
+            // Sliders
+            document.getElementById('speed-slider').addEventListener('input', (e) => {
+                simulationSpeed = parseFloat(e.target.value);
+                document.getElementById('speed-value').textContent = simulationSpeed.toFixed(1) + 'x';
+            });
+            
+            document.getElementById('scale-slider').addEventListener('input', (e) => {
+                planetScale = parseFloat(e.target.value);
+                document.getElementById('scale-value').textContent = planetScale.toFixed(1) + 'x';
+                updatePlanetScale();
+            });
+        }
+        
+        // Función de animación principal
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const delta = clock.getDelta();
+            
+            if (gameActive) {
+                updateSpaceship(delta);
+            }
+            
+            // Actualizar controles
+            controls.update();
+            
+            // Animar órbitas
+            if (simulationSpeed > 0) {
+                const earthOrbitSpeed = 0.02 * simulationSpeed;
+                const moonOrbitSpeed = 0.1 * simulationSpeed;
+                const marsOrbitSpeed = 0.01 * simulationSpeed;
+                
+                earth.position.x = 50 * Math.cos(Date.now() * earthOrbitSpeed * 0.001);
+                earth.position.z = 50 * Math.sin(Date.now() * earthOrbitSpeed * 0.001);
+                
+                if (moon) {
+                    moon.position.x = 8 * Math.cos(Date.now() * moonOrbitSpeed * 0.001);
+                    moon.position.z = 8 * Math.sin(Date.now() * moonOrbitSpeed * 0.001);
+                }
+                
+                mars.position.x = 75 * Math.cos(Date.now() * marsOrbitSpeed * 0.001);
+                mars.position.z = 75 * Math.sin(Date.now() * marsOrbitSpeed * 0.001);
+            }
+            
+            // Actualizar etiquetas
+            updateLabels();
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Simulación de pantalla de carga
+        function simulateLoading() {
+            const loadingBar = document.getElementById('loading-bar');
+            const loadingScreen = document.querySelector('.loading-screen');
+            let progress = 0;
+            
+            const loadingInterval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress > 100) {
+                    progress = 100;
+                    clearInterval(loadingInterval);
+                    
+                    setTimeout(() => {
+                        loadingScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                        }, 1000);
+                    }, 500);
+                }
+                
+                loadingBar.style.width = progress + '%';
+            }, 150);
+        }
+    </script>
+</body>
+</html>

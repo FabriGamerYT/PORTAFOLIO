@@ -97,6 +97,20 @@ const localProjects = [
         isLocal: true,
         status: 'Terminado',
         technologies: ['Minecraft Forge', 'Java', 'ModAPI', 'JSON', 'YAML']
+    },
+    {
+        name: 'Explorador Espacial 3D',
+        description: 'Juego interactivo 3D de exploración espacial con simulación realista del Sistema Solar. Incluye navegación de nave espacial, misiones, física orbital y controles inmersivos. Desarrollado con Three.js.',
+        html_url: './explorador-espacial/index.html',
+        homepage: './explorador-espacial/index.html',
+        language: 'JavaScript',
+        topics: ['game', '3d', 'threejs', 'space', 'simulation', 'interactive'],
+        stargazers_count: 8,
+        forks_count: 2,
+        has_pages: true,
+        isLocal: true,
+        status: 'Terminado',
+        technologies: ['Three.js', 'WebGL', 'JavaScript', 'HTML5', 'CSS3', 'Física 3D']
     }
 ];
 
