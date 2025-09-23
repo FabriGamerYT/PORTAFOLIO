@@ -5,13 +5,28 @@ class ATLProductionApp {
         this.currentView = 'dashboard';
         this.isLoggedIn = false;
         this.mockData = this.initializeMockData();
+        this.notifications = [];
+        this.alerts = [];
+        this.chatMessages = [];
+        this.maintenanceSchedule = [];
+        this.backupData = null;
+        this.webSocketConnection = null;
+        this.notificationSound = null;
         this.init();
     }
 
     init() {
         this.bindEvents();
         this.updateDateTime();
+        this.initializeNotificationSystem();
+        this.initializeChatSystem();
+        this.initializeAlertSystem();
+        this.initializeMaintenanceSystem();
+        this.loadUserPreferences();
+        
         setInterval(() => this.updateDateTime(), 1000);
+        setInterval(() => this.checkMaintenanceAlerts(), 30000); // Check every 30 seconds
+        setInterval(() => this.generateRandomNotifications(), 45000); // Random notifications
         
         // Check if user is already logged in (for demo purposes)
         const savedUser = localStorage.getItem('atlUser');
@@ -82,9 +97,85 @@ class ATLProductionApp {
                 { id: 4, name: 'Línea D', status: 'Inactiva', efficiency: 0, currentOrder: null }
             ],
             orders: [
-                { id: 'ORD-2024-001', product: 'Widget A', quantity: 1000, completed: 750, status: 'En Producción', dueDate: '2024-01-15' },
-                { id: 'ORD-2024-002', product: 'Widget B', quantity: 500, completed: 200, status: 'En Producción', dueDate: '2024-01-12' },
-                { id: 'ORD-2024-003', product: 'Widget C', quantity: 2000, completed: 2000, status: 'Completada', dueDate: '2024-01-10' }
+                { 
+                    id: 'ORD-2024-001', 
+                    product: 'Widget A', 
+                    quantity: 1000, 
+                    completed: 750, 
+                    status: 'En Producción', 
+                    dueDate: '2024-01-15',
+                    createdDate: '2024-01-01',
+                    startTime: '08:00 AM',
+                    client: 'Cliente Industrial S.A.',
+                    productCode: 'WA-001',
+                    lot: '2024-001',
+                    supervisor: 'Carlos Rodriguez',
+                    location: 'Almacén Central',
+                    deliveryMethod: 'Transporte Propio',
+                    specifications: [
+                        'Material: Acero inoxidable',
+                        'Dimensiones: 25x15x10 cm',
+                        'Peso: 1.2 kg'
+                    ],
+                    productionHistory: [
+                        { date: '2024-01-02', time: '10:00 AM', event: 'Inicio de Control de Calidad', responsible: 'Responsable Ana Martinez', status: 'En Progreso' },
+                        { date: '2024-01-02', time: '09:45 AM', event: 'Fabricación completada para 5,000 unidades de cableado antisismico', responsible: 'Responsable Juan Lozano', status: 'Completado' },
+                        { date: '2024-01-02', time: '08:30 AM', event: 'Ajuste de máquinaria', responsible: 'Responsable Roberto Gómez', status: 'Completado' },
+                        { date: '2024-01-01', time: '10:00 AM', event: 'Orden Creada', responsible: 'Responsable Jose Martinez', status: 'Completado' }
+                    ]
+                },
+                { 
+                    id: 'ORD-2024-002', 
+                    product: 'Widget B', 
+                    quantity: 500, 
+                    completed: 200, 
+                    status: 'En Producción', 
+                    dueDate: '2024-01-12',
+                    createdDate: '2024-01-02',
+                    startTime: '09:30 AM',
+                    client: 'Empresa Manufacturera Ltd.',
+                    productCode: 'WB-002',
+                    lot: '2024-002',
+                    supervisor: 'Ana Martinez',
+                    location: 'Almacén Norte',
+                    deliveryMethod: 'Transporte Externo',
+                    specifications: [
+                        'Material: Aluminio',
+                        'Dimensiones: 30x20x5 cm',
+                        'Peso: 0.8 kg'
+                    ],
+                    productionHistory: [
+                        { date: '2024-01-03', time: '11:30 AM', event: 'Control de calidad en progreso', responsible: 'Responsable Carlos Rodriguez', status: 'En Progreso' },
+                        { date: '2024-01-02', time: '09:30 AM', event: 'Orden iniciada', responsible: 'Responsable Ana Martinez', status: 'Completado' }
+                    ]
+                },
+                { 
+                    id: 'ORD-2024-003', 
+                    product: 'Widget C', 
+                    quantity: 2000, 
+                    completed: 2000, 
+                    status: 'Completada', 
+                    dueDate: '2024-01-10',
+                    createdDate: '2023-12-28',
+                    startTime: '07:00 AM',
+                    client: 'Corporación Global Inc.',
+                    productCode: 'WC-003',
+                    lot: '2023-045',
+                    supervisor: 'Roberto Gómez',
+                    location: 'Almacén Sur',
+                    deliveryMethod: 'Transporte Marítimo',
+                    specifications: [
+                        'Material: Plástico ABS',
+                        'Dimensiones: 15x15x8 cm',
+                        'Peso: 0.5 kg'
+                    ],
+                    productionHistory: [
+                        { date: '2024-01-10', time: '16:00 PM', event: 'Orden completada y lista para envío', responsible: 'Responsable Roberto Gómez', status: 'Completado' },
+                        { date: '2024-01-09', time: '14:30 PM', event: 'Control de calidad aprobado', responsible: 'Responsable Ana Martinez', status: 'Completado' },
+                        { date: '2024-01-08', time: '10:00 AM', event: 'Fabricación completada', responsible: 'Responsable Juan Lozano', status: 'Completado' },
+                        { date: '2023-12-28', time: '08:00 AM', event: 'Orden creada', responsible: 'Responsable Carlos Rodriguez', status: 'Completado' }
+                    ]
+                }
             ],
             stats: {
                 activeOrders: 8,
@@ -154,8 +245,8 @@ class ATLProductionApp {
             reports: 'Reportes y Análisis',
             settings: 'Configuración del Sistema'
         };
-        
-        document.getElementById('page-title').textContent = titles[view] || 'Sistema ATL';
+
+        document.getElementById('page-title').textContent = titles[view] || 'FGameStudio production system';
     }
 
     loadViewContent(view) {
@@ -505,7 +596,7 @@ class ATLProductionApp {
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button class="flex-1 bg-blue-50 text-blue-600 hover:bg-blue-100 py-2 px-3 rounded text-sm font-medium">
+                            <button class="flex-1 bg-blue-50 text-blue-600 hover:bg-blue-100 py-2 px-3 rounded text-sm font-medium" onclick="app.showOrderDetails('${order.id}')">
                                 Ver Detalles
                             </button>
                             <button class="flex-1 bg-gray-50 text-gray-600 hover:bg-gray-100 py-2 px-3 rounded text-sm font-medium">
@@ -514,6 +605,350 @@ class ATLProductionApp {
                         </div>
                     </div>
                 `).join('')}
+            </div>
+        `;
+    }
+
+    showOrderDetails(orderId) {
+        const order = this.mockData.orders.find(o => o.id === orderId);
+        if (!order) return;
+
+        const mainContent = document.getElementById('main-content');
+        const pageTitle = document.getElementById('page-title');
+        
+        pageTitle.textContent = `Detalles de Orden - ${order.id}`;
+        
+        mainContent.innerHTML = `
+            <!-- Header with navigation -->
+            <div class="bg-blue-600 text-white p-6 rounded-lg mb-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold">FGameStudio production Software</h1>
+                        <p class="text-blue-100">Órdenes de Producción</p>
+                    </div>
+                    <button onclick="app.navigateToView('orders')" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-50 transition-colors">
+                        ← Volver
+                    </button>
+                </div>
+            </div>
+
+            <!-- Date and Order Info -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">Lunes, 1 de Enero 2024</h2>
+                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                        <span>06:00:00 AM</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                        </div>
+                        <span>Carlos Rodríguez</span>
+                    </div>
+                </div>
+                
+                <!-- Order Navigation -->
+                <div class="border-b border-gray-200 mb-6">
+                    <nav class="flex space-x-6">
+                        <button class="pb-2 border-b-2 border-blue-600 text-blue-600 font-medium">Todos los Órdenes</button>
+                        <button class="pb-2 text-gray-500 hover:text-gray-700">Detalle de Orden</button>
+                        <button class="pb-2 text-gray-500 hover:text-gray-700">Crear Orden</button>
+                        <button class="pb-2 text-gray-500 hover:text-gray-700">Reportes</button>
+                    </nav>
+                </div>
+
+                <!-- Main Order Details Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Order Details Card (Left Side) -->
+                    <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-6">
+                        <div class="border-b border-gray-200 pb-4 mb-6">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-semibold">${order.id}</h3>
+                                <span class="px-3 py-1 text-sm font-medium rounded-full ${order.status === 'En Progreso' ? 'bg-blue-100 text-blue-800' : order.status === 'Completada' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                                    ${order.status}
+                                </span>
+                            </div>
+                            <p class="text-gray-500 mt-1">Creado: ${order.createdDate} • ${order.startTime}</p>
+                        </div>
+
+                        <!-- Order Information Grid -->
+                        <div class="grid grid-cols-2 gap-6 mb-6">
+                            <!-- Product Information -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3">Información del Producto</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Código:</span>
+                                        <span class="font-medium">${order.productCode}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Lote:</span>
+                                        <span class="font-medium">${order.lot}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Cantidad:</span>
+                                        <span class="font-medium">${order.quantity.toLocaleString()} unidades</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Completado:</span>
+                                        <span class="font-medium">${order.completed.toLocaleString()} unidades</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Delivery Information -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3">Información de Entrega</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Cliente:</span>
+                                        <span class="font-medium">${order.client}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Dirección:</span>
+                                        <span class="font-medium">${order.location}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Teléfono:</span>
+                                        <span class="font-medium">+52 55 1234 5678</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Método de Envío:</span>
+                                        <span class="font-medium">${order.deliveryMethod}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Email:</span>
+                                        <span class="font-medium">j.monterrubio@empresa.com</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Provincia:</span>
+                                        <span class="font-medium">Ciudad de México</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Stages -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-800 mb-4">Etapas de Producción</h4>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">✓</div>
+                                    <span class="ml-2 text-sm font-medium text-green-600">Recibido</span>
+                                </div>
+                                <div class="flex-1 h-1 bg-green-500 mx-2"></div>
+                                
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">✓</div>
+                                    <span class="ml-2 text-sm font-medium text-green-600">Fabricación</span>
+                                </div>
+                                <div class="flex-1 h-1 ${order.status === 'Completada' ? 'bg-green-500' : 'bg-blue-500'} mx-2"></div>
+
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 ${order.status === 'Completada' ? 'bg-green-500' : 'bg-blue-500'} rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                                        ${order.status === 'Completada' ? '✓' : '3'}
+                                    </div>
+                                    <span class="ml-2 text-sm font-medium ${order.status === 'Completada' ? 'text-green-600' : 'text-blue-600'}">Control de Calidad</span>
+                                </div>
+                                <div class="flex-1 h-1 ${order.status === 'Completada' ? 'bg-green-500' : 'bg-gray-300'} mx-2"></div>
+
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 ${order.status === 'Completada' ? 'bg-green-500' : 'bg-gray-300'} rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                                        ${order.status === 'Completada' ? '✓' : '4'}
+                                    </div>
+                                    <span class="ml-2 text-sm font-medium ${order.status === 'Completada' ? 'text-green-600' : 'text-gray-500'}">Completado</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex space-x-3">
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                                📄 Imprimir
+                            </button>
+                            <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors">
+                                📧 Enviar
+                            </button>
+                            <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors">
+                                ✅ Completar Etapa
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Sidebar -->
+                    <div class="space-y-6">
+                        <!-- Control de Calidad -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-800 mb-3">Control de Calidad</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span>Muestras Analizadas</span>
+                                    <span class="font-semibold">250 / 500</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Tasa de Aprobación</span>
+                                    <span class="text-green-600 font-semibold">95%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Resultados de Pruebas</span>
+                                    <span class="text-green-600 font-semibold">Aprobado</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Responsable</span>
+                                    <span class="font-semibold">${order.supervisor}</span>
+                                </div>
+                            </div>
+                            <button class="w-full mt-3 bg-blue-50 text-blue-600 py-2 rounded text-sm font-medium hover:bg-blue-100 transition-colors">
+                                Ver Reporte Completo
+                            </button>
+                        </div>
+
+                        <!-- Equipo de Producción -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-800 mb-3">Equipo de Producción</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">👤</div>
+                                    <div>
+                                        <div class="text-sm font-medium">Juan Pérez</div>
+                                        <div class="text-xs text-gray-500">Operador Senior</div>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full inline-block"></span>
+                                        <span class="text-xs text-gray-500 ml-1">Activo</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm">👤</div>
+                                    <div>
+                                        <div class="text-sm font-medium">María López</div>
+                                        <div class="text-xs text-gray-500">Técnico de Calidad</div>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full inline-block"></span>
+                                        <span class="text-xs text-gray-500 ml-1">Activo</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">👤</div>
+                                    <div>
+                                        <div class="text-sm font-medium">Pedro Gómez</div>
+                                        <div class="text-xs text-gray-500">Técnico de Mantenimiento</div>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <span class="w-2 h-2 bg-yellow-500 rounded-full inline-block"></span>
+                                        <span class="text-xs text-gray-500 ml-1">Descanso</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-sm">👤</div>
+                                    <div>
+                                        <div class="text-sm font-medium">Roberto Gómez</div>
+                                        <div class="text-xs text-gray-500">Operador de Máquinaria</div>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full inline-block"></span>
+                                        <span class="text-xs text-gray-500 ml-1">Activo</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Materiales y Recursos -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-800 mb-3">Materiales y Recursos</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between items-center">
+                                    <span>Materias Primas</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-16 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-500 h-2 rounded-full" style="width: 75%"></div>
+                                        </div>
+                                        <span class="text-green-600 font-semibold text-xs">75%</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span>Aguas Desionizadas</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-16 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-500 h-2 rounded-full" style="width: 90%"></div>
+                                        </div>
+                                        <span class="text-green-600 font-semibold text-xs">90%</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span>Material de Empaque</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-16 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-yellow-500 h-2 rounded-full" style="width: 50%"></div>
+                                        </div>
+                                        <span class="text-yellow-600 font-semibold text-xs">50%</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span>Insumos</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-16 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-red-500 h-2 rounded-full" style="width: 25%"></div>
+                                        </div>
+                                        <span class="text-red-600 font-semibold text-xs">25%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="w-full mt-3 bg-blue-600 text-white py-2 rounded text-sm font-medium hover:bg-blue-700 transition-colors">
+                                Solicitar Materiales
+                            </button>
+                        </div>
+
+                        <!-- Órdenes Relacionadas -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-800 mb-3">Órdenes Relacionadas</h3>
+                            <div class="space-y-2 text-sm">
+                                ${this.mockData.orders.filter(o => o.id !== orderId).slice(0, 2).map(relatedOrder => `
+                                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                                        <div>
+                                            <div class="font-medium">${relatedOrder.id}</div>
+                                            <div class="text-xs text-gray-500">${relatedOrder.product}</div>
+                                        </div>
+                                        <span class="text-xs px-2 py-1 rounded ${relatedOrder.status === 'Completada' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}">
+                                            ${relatedOrder.status}
+                                        </span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Production History -->
+            <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Historial de Producción</h3>
+                <div class="space-y-4">
+                    ${order.productionHistory.map(event => `
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center ${event.status === 'Completado' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}">
+                                    ${event.status === 'Completado' ? '✓' : '•'}
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-gray-800">${event.event}</p>
+                                        <p class="text-sm text-gray-500">${event.responsible}</p>
+                                    </div>
+                                    <div class="text-right text-sm text-gray-500">
+                                        <p>${event.date}</p>
+                                        <p>${event.time}</p>
+                                    </div>
+                                </div>
+                                <span class="inline-block mt-1 px-2 py-1 text-xs rounded-full ${event.status === 'Completado' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}">
+                                    ${event.status}
+                                </span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
             </div>
         `;
     }
@@ -852,6 +1287,7 @@ class ATLProductionApp {
 // Initialize the application
 window.addEventListener('DOMContentLoaded', () => {
     window.atlApp = new ATLProductionApp();
+    window.app = window.atlApp; // Make it accessible as 'app' too
 });
 
 // Global logout function for onclick handlers

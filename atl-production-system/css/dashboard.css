@@ -1,0 +1,270 @@
+/* Dashboard Styles */
+.font-inter {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Navigation Styles */
+.nav-link {
+    transition: all 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+    background-color: rgba(75, 85, 99, 0.5);
+}
+
+.nav-link.active {
+    background-color: rgb(17, 24, 39);
+    color: white;
+}
+
+/* KPI Cards */
+.kpi-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease-in-out;
+}
+
+.kpi-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+}
+
+/* Charts Container */
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+/* Status Indicators */
+.status-active {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.status-maintenance {
+    background-color: #fed7aa;
+    color: #9a3412;
+}
+
+.status-standby {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+/* Progress Bars */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+    transition: width 0.3s ease-in-out;
+}
+
+/* Data Tables */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background-color: #f9fafb;
+    color: #374151;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #6b7280;
+}
+
+.data-table tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Live Indicators */
+.live-indicator {
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Animations */
+.updating {
+    animation: highlight 0.5s ease-in-out;
+}
+
+@keyframes highlight {
+    0% {
+        background-color: #dbeafe;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Collapsible Sidebar */
+.collapsible-header {
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.collapsible-header:hover {
+    background-color: rgba(75, 85, 99, 0.3);
+}
+
+.collapsible-content {
+    transition: all 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+.collapsible-content.hidden {
+    max-height: 0;
+    opacity: 0;
+}
+
+.collapsible-content:not(.hidden) {
+    max-height: 1000px;
+    opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .nav-link {
+        font-size: 0.875rem;
+        padding: 0.5rem;
+    }
+    
+    .nav-link svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-right: 0.5rem;
+    }
+    
+    .kpi-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Loading States */
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Modal Styles */
+.modal-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .card {
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .production-line {
+            transition: all 0.3s ease;
+        }
+        .production-line:hover {
+            transform: scale(1.02);
+        }
+        .badge {
+            transition: all 0.3s ease;
+        }
+        .badge:hover {
+            transform: scale(1.1);
+        }

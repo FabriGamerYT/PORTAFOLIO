@@ -1,0 +1,144 @@
+body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .login-container {
+            background-image: linear-gradient(135deg, rgba(59, 130, 246, 0.8) 0%, rgba(37, 99, 235, 0.9) 100%);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5);
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        .role-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .role-card.selected {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .check-icon {
+            display: none;
+        }
+        .role-card.selected .check-icon {
+            display: flex;
+        }
+        .login-btn {
+            transition: all 0.3s ease;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.5);
+        }
+        .profile-card {
+            transition: all 0.3s ease;
+        }
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .badge {
+            transition: all 0.3s ease;
+        }
+        .badge:hover {
+            transform: scale(1.1);
+        }
+        .modal {
+            transition: all 0.3s ease;
+        }
+        .scanner-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        .scanner-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: #3b82f6;
+            box-shadow: 0 0 8px 2px rgba(59, 130, 246, 0.8);
+            z-index: 11;
+            animation: scan 2s linear infinite;
+        }
+        @keyframes scan {
+            0% {
+                top: 0;
+            }
+            50% {
+                top: 100%;
+            }
+            100% {
+                top: 0;
+            }
+        }
+        .scanner-corners::before,
+        .scanner-corners::after,
+        .scanner-corners span::before,
+        .scanner-corners span::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: #3b82f6;
+            border-style: solid;
+            z-index: 12;
+        }
+        .scanner-corners::before {
+            top: 10px;
+            left: 10px;
+            border-width: 3px 0 0 3px;
+        }
+        .scanner-corners::after {
+            top: 10px;
+            right: 10px;
+            border-width: 3px 3px 0 0;
+        }
+        .scanner-corners span::before {
+            bottom: 10px;
+            left: 10px;
+            border-width: 0 0 3px 3px;
+        }
+        .scanner-corners span::after {
+            bottom: 10px;
+            right: 10px;
+            border-width: 0 3px 3px 0;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }

@@ -111,7 +111,7 @@ const localProjects = [
         isLocal: true,
         status: 'Terminado',
         technologies: ['Three.js', 'WebGL', 'JavaScript', 'HTML5', 'CSS3', 'Física 3D']
-    }
+    },
 ];
 
 async function fetchGitHubProjects() {

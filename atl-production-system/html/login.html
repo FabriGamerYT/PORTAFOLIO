@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATL Technology - Login y Escáner QR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="../css/login.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="flex flex-col min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <svg class="h-8 w-8 text-blue-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h1 class="ml-2 text-xl font-bold text-gray-800">ATL Technology</h1>
+                </div>
+                <div class="text-sm text-gray-600">
+                    Sistema de Gestión de Producción
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow flex items-center justify-center p-4">
+            <div class="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <!-- Login Form -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div class="login-container p-8 text-white">
+                            <h2 class="text-2xl font-bold mb-2">Bienvenido</h2>
+                            <p class="text-blue-100 mb-6">Inicia sesión para acceder al sistema</p>
+                            <div class="flex items-center mb-6">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-medium">Portal de Empleados</h3>
+                                    <p class="text-blue-200 text-sm">Acceso seguro al sistema</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-8">
+                            <form id="login-form">
+                                <div class="mb-6">
+                                    <label for="employee-id" class="block text-sm font-medium text-gray-700 mb-2">ID de Empleado</label>
+                                    <input type="text" id="employee-id" name="employee-id" required
+                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+                                           placeholder="Ingresa tu ID de empleado">
+                                </div>
+                                <div class="mb-6">
+                                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+                                    <div class="relative">
+                                        <input type="password" id="password" name="password" required
+                                               class="form-input w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+                                               placeholder="Ingresa tu contraseña">
+                                        <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition duration-200">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mb-6">
+                                    <div class="flex items-center">
+                                        <input id="remember-me" name="remember-me" type="checkbox" 
+                                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                        <label for="remember-me" class="ml-2 block text-sm text-gray-700">
+                                            Recordar sesión
+                                        </label>
+                                    </div>
+                                    <div class="text-sm">
+                                        <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+                                            ¿Olvidaste tu contraseña?
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="mb-6">
+                                    <button type="button" id="login-btn" class="login-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                                        Iniciar Sesión
+                                    </button>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-600">
+                                        ¿Necesitas ayuda? 
+                                        <a href="#" class="font-medium text-blue-600 hover:text-blue-500">Contacta soporte</a>
+                                    </p>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QR Scanner Section -->
+                <div class="lg:col-span-3">
+                    <div class="bg-white rounded-lg shadow-lg p-8">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-6">Escáner de Códigos QR</h2>
+                        
+                        <div class="grid grid-cols-1 gap-6">
+                            <!-- Scanner Tabs -->
+                            <div class="border-b border-gray-200">
+                                <div class="flex -mb-px">
+                                    <button id="tab-lotes" class="text-blue-600 border-b-2 border-blue-600 whitespace-nowrap py-4 px-1 border-transparent text-sm font-medium mr-8">
+                                        Lotes
+                                    </button>
+                                    <button id="tab-operarios" class="text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-transparent text-sm font-medium">
+                                        Operarios
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Scanner Content -->
+                            <div id="scanner-content">
+                                <!-- Lotes Scanner (Default) -->
+                                <div id="lotes-scanner" class="fade-in">
+                                    <div class="text-center mb-6">
+                                        <div class="w-16 h-16 bg-blue-100 rounded-full mx-auto flex items-center justify-center text-blue-600 mb-4">
+                                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z"></path>
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-2">Escanear Lote</h3>
+                                        <p class="text-sm text-gray-500 mb-6">Escanea el código QR del lote para ver su información detallada</p>
+                                    </div>
+                                    
+                                    <div class="scanner-container mb-6">
+                                        <div class="w-full h-48 bg-gray-900 rounded-lg relative overflow-hidden scanner-corners">
+                                            <span></span>
+                                            <div class="scanner-overlay"></div>
+                                            <div class="scanner-line"></div>
+                                            <div class="absolute inset-0 flex items-center justify-center">
+                                                <div class="text-white text-sm">
+                                                    <svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z"></path>
+                                                    </svg>
+                                                    <p class="text-center opacity-75">Apunta la cámara al código QR</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button id="start-scanner-lotes" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z"></path>
+                                        </svg>
+                                        Activar Escáner
+                                    </button>
+                                </div>
+                                
+                                <!-- Operarios Scanner (Hidden by default) -->
+                                <div id="operarios-scanner" class="hidden">
+                                    <div class="text-center mb-6">
+                                        <div class="w-16 h-16 bg-green-100 rounded-full mx-auto flex items-center justify-center text-green-600 mb-4">
+                                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-2">Registro de Operarios</h3>
+                                        <p class="text-sm text-gray-500 mb-6">Escanea el código QR del empleado para registrar entrada/salida</p>
+                                    </div>
+                                    
+                                    <div class="mb-6">
+                                        <label for="tipo-registro" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Registro</label>
+                                        <select id="tipo-registro" class="w-full px-4 py-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                            <option value="entrada">Entrada</option>
+                                            <option value="salida">Salida</option>
+                                            <option value="descanso">Inicio de Descanso</option>
+                                            <option value="fin-descanso">Fin de Descanso</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="scanner-container mb-6">
+                                        <div class="w-full h-48 bg-gray-900 rounded-lg relative overflow-hidden scanner-corners">
+                                            <span></span>
+                                            <div class="scanner-overlay"></div>
+                                            <div class="scanner-line"></div>
+                                            <div class="absolute inset-0 flex items-center justify-center">
+                                                <div class="text-white text-sm">
+                                                    <svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                                    </svg>
+                                                    <p class="text-center opacity-75">Apunta la cámara al código QR del empleado</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button id="start-scanner-operarios" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        </svg>
+                                        Registrar Operario
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-gray-200 py-4">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center">
+                    <div class="text-sm text-gray-500">
+                        &copy; 2023 ATL Technology. Todos los derechos reservados.
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        Versión 2.5.3
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+                        </button>
+                    </div>
+
+                    <!-- Operarios Scanner -->
+                    <div id="operarios-scanner" class="mt-4 hidden">
+                        <p class="text-sm text-gray-600 mb-4">Escanea el código QR del empleado para registrar entrada/salida.</p>
+                        <div class="scanner-container">
+                            <div class="scanner-frame">
+                                <div class="scanner-overlay">
+                                    <div class="scanner-line"></div>
+                                </div>
+                                <div class="scanner-corners">
+                                    <div class="corner top-left"></div>
+                                    <div class="corner top-right"></div>
+                                    <div class="corner bottom-left"></div>
+                                    <div class="corner bottom-right"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="tipo-registro" class="block text-sm font-medium text-gray-700">Tipo de Registro</label>
+                            <select id="tipo-registro" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option value="entrada">Entrada</option>
+                                <option value="salida">Salida</option>
+                                <option value="descanso">Inicio de Descanso</option>
+                                <option value="fin-descanso">Fin de Descanso</option>
+                            </select>
+                        </div>
+                        <button id="start-scanner-operarios" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            Registrar Operario
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center">
+            <p class="text-xs text-gray-500">© 2023 ATL Technology. Versión 1.0.0</p>
+        </div>
+    </div>
+
+    <!-- QR Scan Success Modal -->
+    <div id="qr-success-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 modal">
+            <div class="p-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full mx-auto flex items-center justify-center text-green-600 mb-4 pulse">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2 text-center">¡Código QR Escaneado!</h3>
+                <div id="qr-result-content" class="mb-6">
+                    <!-- Content will be dynamically inserted here -->
+                </div>
+                <div class="flex justify-center">
+                    <button id="qr-continue-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md">
+                        Aceptar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Break Configuration Modal -->
+    <div id="break-config-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 modal">
+            <div class="border-b border-gray-200 px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900">Configuración de Breaks y Comidas</h3>
+                    <button id="close-break-modal" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="px-6 py-4">
+                <div class="mb-6">
+                    <div class="flex items-center justify-center mb-4">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="text-center mb-4">
+                        <h4 class="text-lg font-medium text-gray-900">Línea 1 - Turno Matutino</h4>
+                        <p class="text-sm text-gray-500">Configuración de horarios para descansos</p>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h5 class="text-sm font-medium text-gray-700 mb-3">Break 1</h5>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="break1-start" class="block text-xs font-medium text-gray-500 mb-1">Hora Inicio</label>
+                                <input type="time" id="break1-start" name="break1-start" value="10:00" class="form-input w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="break1-end" class="block text-xs font-medium text-gray-500 mb-1">Hora Fin</label>
+                                <input type="time" id="break1-end" name="break1-end" value="10:15" class="form-input w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h5 class="text-sm font-medium text-gray-700 mb-3">Comida</h5>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="lunch-start" class="block text-xs font-medium text-gray-500 mb-1">Hora Inicio</label>
+                                <input type="time" id="lunch-start" name="lunch-start" value="13:00" class="form-input w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="lunch-end" class="block text-xs font-medium text-gray-500 mb-1">Hora Fin</label>
+                                <input type="time" id="lunch-end" name="lunch-end" value="13:30" class="form-input w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h5 class="text-sm font-medium text-gray-700 mb-3">Break 2</h5>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="break2-start" class="block text-xs font-medium text-gray-500 mb-1">Hora Inicio</label>
+                                <input type="time" id="break2-start" name="break2-start" value="15:30" class="form-input w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="break2-end" class="block text-xs font-medium text-gray-500 mb-1">Hora Fin</label>
+                                <input type="time" id="break2-end" name="break2-end" value="15:45" class="form-input w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-yellow-800">Importante</h3>
+                                <div class="mt-2 text-sm text-yellow-700">
+                                    <p>Los horarios configurados se aplicarán a todos los operarios de esta línea. Asegúrate de coordinar con el supervisor de turno.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-4 flex justify-end">
+                <button id="cancel-break-config" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md mr-2">
+                    Cancelar
+                </button>
+                <button id="save-break-config" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">
+                    Guardar Configuración
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Success Modal -->
+    <div id="login-success-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 modal">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full mx-auto flex items-center justify-center text-green-600 mb-4">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">¡Inicio de sesión exitoso!</h3>
+                <p class="text-sm text-gray-500 mb-6">Bienvenido al Sistema de Gestión de Producción de ATL Technology.</p>
+                <div class="flex justify-center">
+                    <button id="continue-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md">
+                        Continuar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/login.js"></script>
+</body>
+</html>
