@@ -237,21 +237,14 @@ body {
 
 .input-icon {
     position: absolute;
-    top: 0;
+    inset: 0;
     right: 0;
-    bottom: 0;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     pointer-events: none;
     padding-right: 0.85rem;
     color: #94a3b8;
-    min-width: 2.75rem;
-}
-
-.input-icon svg {
-    width: 1.2rem;
-    height: 1.2rem;
 }
 
 .toggle-password {
