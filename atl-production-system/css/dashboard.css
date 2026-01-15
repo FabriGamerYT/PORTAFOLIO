@@ -425,6 +425,7 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
+
 .panel {
     background: #fff;
     border-radius: 1.3rem;
@@ -445,6 +446,7 @@ body {
     height: clamp(260px, 38vh, 460px);
     max-height: 520px;
 }
+
 
 .panel-header {
     display: flex;
@@ -846,6 +848,106 @@ body {
 
 .hidden {
     display: none !important;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    z-index: 40;
+}
+
+.modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+}
+
+.modal__content {
+    position: relative;
+    background: #fff;
+    border-radius: 1.2rem;
+    padding: 1.5rem;
+    width: min(720px, 92vw);
+    box-shadow: 0 26px 90px -52px rgba(15, 23, 42, 0.7);
+    display: grid;
+    gap: 1rem;
+}
+
+.modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.modal__eyebrow {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.modal__header h3 {
+    margin: 0.2rem 0 0;
+    font-size: 1.15rem;
+}
+
+.modal__close {
+    border: none;
+    background: #eef2ff;
+    color: #1e3a8a;
+    border-radius: 0.6rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.modal__body {
+    display: grid;
+    gap: 1rem;
+}
+
+.kpi-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.8rem;
+}
+
+.kpi-detail-card {
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 0.9rem;
+    padding: 0.85rem 1rem;
+    background: #f8fafc;
+    display: grid;
+    gap: 0.25rem;
+}
+
+.kpi-detail-card h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #0f172a;
+}
+
+.kpi-detail-meta {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+.kpi-detail-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.kpi-detail-trend {
+    font-size: 0.85rem;
+    font-weight: 600;
 }
 
 @media (max-width: 1100px) {

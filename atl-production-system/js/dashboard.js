@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
         startStandup: document.getElementById('start-standup'),
         openKpis: document.getElementById('open-kpis'),
         viewReleaseNotes: document.getElementById('view-release-notes'),
+        kpiModal: document.getElementById('kpi-modal'),
+        kpiModalBody: document.getElementById('kpi-modal-body'),
+        kpiModalClose: document.getElementById('kpi-modal-close'),
         footerYear: document.getElementById('footer-year'),
         productionCanvas: document.getElementById('production-trend'),
         kpi: {
@@ -140,12 +143,23 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.startStandup,
             elements.openBreaks,
             elements.openMaintenance,
-            elements.openAttendance,
-            elements.openKpis
+            elements.openAttendance
         ].forEach(btn => btn?.addEventListener('click', () => {
             const message = btn.dataset.toast || btn.textContent?.trim() || 'Acción ejecutada';
             showToast(`${message} (demo)`);
         }));
+
+        elements.openKpis?.addEventListener('click', () => {
+            renderKpiModal();
+            openModal(elements.kpiModal);
+        });
+
+        elements.kpiModalClose?.addEventListener('click', () => closeModal(elements.kpiModal));
+        elements.kpiModal?.addEventListener('click', event => {
+            if (event.target.dataset.close === 'kpi-modal') {
+                closeModal(elements.kpiModal);
+            }
+        });
 
         elements.downloadReport?.addEventListener('click', () => {
             showToast('Generando reporte consolidado (demo)');
@@ -169,6 +183,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         elements.logoutBtn?.addEventListener('click', handleLogout);
+
+        const navItems = document.querySelectorAll('.app-nav__item');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const { action, target } = item.dataset;
+                const message = item.dataset.toast || item.textContent?.trim() || 'Acción ejecutada';
+
+                if (action) {
+                    handleQuickAction(action, message);
+                    return;
+                }
+
+                navItems.forEach(i => i.classList.remove('app-nav__item--active'));
+                item.classList.add('app-nav__item--active');
+
+                if (target) {
+                    const anchor = document.getElementById(target);
+                    anchor?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+
+                showToast(`${message} (demo)`);
+            });
+        });
     }
 
     function handleLogout() {
@@ -198,6 +235,10 @@ document.addEventListener('DOMContentLoaded', () => {
         colorizeTrend(elements.kpi.outputTrend, data.output.trend.value);
         colorizeTrend(elements.kpi.ordersTrend, -data.orders.trend.value); // fewer órdenes es positivo
         colorizeTrend(elements.kpi.qualityTrend, data.quality.trend.value);
+
+        if (!elements.kpiModal?.classList.contains('hidden')) {
+            renderKpiModal();
+        }
     }
 
     function renderShiftSummary() {
@@ -650,4 +691,79 @@ document.addEventListener('DOMContentLoaded', () => {
     function clamp(value, min, max) {
         return Math.min(Math.max(value, min), max);
     }
+
+    function renderKpiModal() {
+        if (!elements.kpiModalBody) return;
+        const data = getKpiData(state.range);
+        if (!data) return;
+
+        const trendColor = val => (val >= 0 ? '#16a34a' : '#dc2626');
+        const cards = [
+            { title: 'Eficiencia', meta: 'Meta 92%', value: `${data.efficiency.value.toFixed(1)}%`, trend: data.efficiency.trend.value },
+            { title: 'Output', meta: 'Unidades acumuladas', value: data.output.value.toLocaleString('es-MX'), trend: data.output.trend.value },
+            { title: 'Órdenes', meta: 'Activas en el rango', value: data.orders.value, trend: -data.orders.trend.value },
+            { title: 'Calidad FPY', meta: 'Meta 98%', value: `${data.quality.value.toFixed(1)}%`, trend: data.quality.trend.value }
+        ];
+
+        elements.kpiModalBody.innerHTML = `
+            <div class="kpi-detail-grid">
+                ${cards.map(card => `
+                    <article class="kpi-detail-card">
+                        <p class="kpi-detail-meta">${card.meta}</p>
+                        <h4>${card.title}</h4>
+                        <div class="kpi-detail-value">${card.value}</div>
+                        <div class="kpi-detail-trend" style="color:${trendColor(card.trend)}">${trendString({ value: card.trend }, card.title === 'Órdenes')}</div>
+                    </article>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    function openModal(modal) {
+        if (!modal) return;
+        modal.classList.remove('hidden');
+    }
+
+    function closeModal(modal) {
+        if (!modal) return;
+        modal.classList.add('hidden');
+    }
+
+    function handleQuickAction(action, message) {
+        switch (action) {
+            case 'refresh-orders':
+                elements.refreshOrders?.click();
+                break;
+            case 'open-maintenance':
+                elements.openMaintenance?.click();
+                break;
+            case 'open-audit':
+                showToast('Lanzando auditoría en vivo (demo)');
+                break;
+            default:
+                break;
+        }
+        showToast(`${message} (demo)`);
+    }
+
+    // Expose simple demo helpers for KPI previews without touching internal state directly
+    window.atlDemoKpi = {
+        snapshot() {
+            return ['shift', 'day', 'week'].reduce((acc, key) => {
+                acc[key] = JSON.parse(JSON.stringify(getKpiData(key)));
+                return acc;
+            }, {});
+        },
+        setRange(range) {
+            if (!['shift', 'day', 'week'].includes(range)) return;
+            state.range = range;
+            renderKPIs();
+            updateChart();
+        },
+        tick() {
+            mutateKPIs();
+            renderKPIs();
+            updateChart();
+        }
+    };
 });

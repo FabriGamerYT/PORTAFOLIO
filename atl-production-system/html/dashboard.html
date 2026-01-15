@@ -49,32 +49,32 @@
                     <span class="app-nav__icon" aria-hidden="true">🏠</span>
                     Panel principal
                 </button>
-                <button class="app-nav__item">
+                <button class="app-nav__item" data-target="section-produccion" data-toast="Ir a Producción">
                     <span class="app-nav__icon" aria-hidden="true">🏭</span>
                     Producción
                 </button>
-                <button class="app-nav__item">
+                <button class="app-nav__item" data-target="section-calidad" data-toast="Ir a Calidad">
                     <span class="app-nav__icon" aria-hidden="true">🧪</span>
                     Calidad
                 </button>
-                <button class="app-nav__item">
+                <button class="app-nav__item" data-target="section-personal" data-toast="Ir a Personal">
                     <span class="app-nav__icon" aria-hidden="true">👥</span>
                     Personal
                 </button>
-                <button class="app-nav__item">
+                <button class="app-nav__item" data-target="section-reportes" data-toast="Ir a Reportes">
                     <span class="app-nav__icon" aria-hidden="true">📊</span>
                     Reportes
                 </button>
                 <span class="app-nav__label">Accesos rápidos</span>
-                <button class="app-nav__item">
+                <button class="app-nav__item" data-action="refresh-orders" data-toast="Actualizar órdenes">
                     <span class="app-nav__icon" aria-hidden="true">📝</span>
                     Actualizar órdenes
                 </button>
-                <button class="app-nav__item">
+                <button class="app-nav__item" data-action="open-maintenance" data-toast="Solicitar mantenimiento">
                     <span class="app-nav__icon" aria-hidden="true">🛠️</span>
                     Solicitar mantenimiento
                 </button>
-                <button class="app-nav__item">
+                <button class="app-nav__item" data-action="open-audit" data-toast="Auditoría en vivo">
                     <span class="app-nav__icon" aria-hidden="true">🛡️</span>
                     Auditoría en vivo
                 </button>
@@ -163,7 +163,7 @@
                 </section>
 
                 <section class="panel-grid panel-grid--two">
-                    <article class="panel panel--stretch" aria-labelledby="production-title">
+                    <article class="panel panel--stretch" aria-labelledby="production-title" id="section-produccion">
                         <header class="panel-header">
                             <div>
                                 <h3 id="production-title">Evolución de producción</h3>
@@ -224,7 +224,7 @@
                         <ul id="activity-feed" class="timeline" aria-live="polite"></ul>
                     </article>
 
-                    <article class="panel" aria-labelledby="alerts-title">
+                    <article class="panel" aria-labelledby="alerts-title" id="section-calidad">
                         <header class="panel-header">
                             <div>
                                 <h3 id="alerts-title">Alertas y acciones</h3>
@@ -235,7 +235,7 @@
                         <ul id="alerts-list" class="alerts"></ul>
                     </article>
 
-                    <article class="panel" aria-labelledby="team-title">
+                    <article class="panel" aria-labelledby="team-title" id="section-personal">
                         <header class="panel-header">
                             <div>
                                 <h3 id="team-title">Equipo en planta</h3>
@@ -248,7 +248,7 @@
                 </section>
 
                 <section class="panel-grid panel-grid--two">
-                    <article class="panel" aria-labelledby="orders-title">
+                    <article class="panel" aria-labelledby="orders-title" id="section-reportes">
                         <header class="panel-header">
                             <div>
                                 <h3 id="orders-title">Pipeline de órdenes</h3>
@@ -284,6 +284,20 @@
                     <button id="view-release-notes" class="footer-link">Notas de la versión</button>
                 </div>
             </footer>
+        </div>
+    </div>
+
+    <div id="kpi-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="kpi-modal-title">
+        <div class="modal__backdrop" data-close="kpi-modal"></div>
+        <div class="modal__content">
+            <header class="modal__header">
+                <div>
+                    <p class="modal__eyebrow">KPIs del intervalo</p>
+                    <h3 id="kpi-modal-title">Resumen detallado</h3>
+                </div>
+                <button id="kpi-modal-close" class="modal__close" aria-label="Cerrar">×</button>
+            </header>
+            <div id="kpi-modal-body" class="modal__body"></div>
         </div>
     </div>
 
