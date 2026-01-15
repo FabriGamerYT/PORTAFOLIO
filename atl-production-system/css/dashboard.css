@@ -437,6 +437,13 @@ body {
 
 .panel--stretch {
     min-height: 340px;
+    grid-template-rows: auto 1fr;
+}
+
+.panel--stretch canvas {
+    width: 100%;
+    height: clamp(260px, 38vh, 460px);
+    max-height: 520px;
 }
 
 .panel-header {
