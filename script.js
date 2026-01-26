@@ -85,6 +85,19 @@ const localProjects = [
         isLocal: true
     },
     {
+        name: 'programa de control de finansas personales',
+        description: 'Sistema de gestión de producción empresarial con dashboard interactivo, escáner QR y control en tiempo real desarrollado por FGameStudio Software',
+        html_url: './control de finansas/index.html',
+        homepage: './control de finansas/index.html',
+        language: 'JavaScript',
+        topics: ['web', 'dashboard', 'finanzas', 'divisas controller'],
+        stargazers_count: 0,
+        forks_count: 0,
+        status: 'En desarrollo',
+        has_pages: true,
+        isLocal: true
+    },
+    {
         name: 'Puerto Alcazar - Servidor Minecraft',
         description: 'Servidor de Minecraft Java con mods de rol y lore medieval. Incluye boss épicos distribuidos por todo el mundo para batallas legendarias. Experiencia de juego inmersiva con historia rica y mecánicas de RPG avanzadas.',
         html_url: '#',
