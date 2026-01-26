@@ -86,7 +86,7 @@ const localProjects = [
     },
     {
         name: 'programa de control de finansas personales',
-        description: 'Sistema de gestión de producción empresarial con dashboard interactivo, escáner QR y control en tiempo real desarrollado por FGameStudio Software',
+        description: 'Sistema de gestión de finanzas personales desarrollado por FGameStudio Software',
         html_url: './control de finansas/index.html',
         homepage: './control de finansas/index.html',
         language: 'JavaScript',
