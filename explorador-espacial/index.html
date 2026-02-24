@@ -869,6 +869,27 @@
         };
         let spaceshipVelocity = new THREE.Vector3(0, 0, 0);
         let spaceshipRotation = 0;
+        const CAMERA_FOLLOW_DISTANCE = 16;
+        const CAMERA_HEIGHT_OFFSET = 6;
+        const CAMERA_LOOK_AHEAD_DISTANCE = 8;
+        const CAMERA_LERP_FACTOR = 0.12;
+        const CAMERA_MOUSE_SENSITIVITY = 0.004;
+        const CAMERA_ORBIT_YAW_LIMIT = 0.75;
+        const CAMERA_ORBIT_PITCH_MIN = -0.35;
+        const CAMERA_ORBIT_PITCH_MAX = 0.55;
+        const MAX_GRAVITY_ACCELERATION = 0.12;
+        const MIN_GRAVITY_DISTANCE_SQUARED = 25;
+        const gravityDirection = new THREE.Vector3();
+        const cameraTargetPosition = new THREE.Vector3();
+        const cameraLookTarget = new THREE.Vector3();
+        const moonWorldPosition = new THREE.Vector3();
+        const previousSpaceshipPosition = new THREE.Vector3();
+        const cameraFollowDelta = new THREE.Vector3();
+        let isCameraDragActive = false;
+        let lastCameraMouseX = 0;
+        let lastCameraMouseY = 0;
+        let cameraYawOffset = 0;
+        let cameraPitchOffset = 0;
         let fuel = 100;
         let score = 0;
         let currentMission = 0;
@@ -960,12 +981,7 @@
             }
         };
 
-        // Inicialización
-        init();
-        animate();
-
-        // Pantalla de carga
-        simulateLoading();
+        // Inicialización controlada al final del archivo (DOMContentLoaded)
 
         function simulateLoading() {
             const loadingBar = document.getElementById('loading-bar');
@@ -1102,18 +1118,21 @@
         }
 
         function createSpaceship() {
+            spaceship = new THREE.Group();
+
             // Cuerpo principal
             const bodyGeometry = new THREE.ConeGeometry(1, 3, 8);
             const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0x888888 });
-            spaceship = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            spaceship.rotation.x = Math.PI / 2;
+            const shipModel = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            shipModel.rotation.x = Math.PI / 2;
+            spaceship.add(shipModel);
             
             // Alas
             const wingGeometry = new THREE.BoxGeometry(3, 0.2, 1);
             const wingMaterial = new THREE.MeshLambertMaterial({ color: 0x555555 });
             const wings = new THREE.Mesh(wingGeometry, wingMaterial);
             wings.position.z = -0.5;
-            spaceship.add(wings);
+            shipModel.add(wings);
             
             // Cabina
             const cabinGeometry = new THREE.SphereGeometry(0.5, 16, 8);
@@ -1121,7 +1140,7 @@
             const cabin = new THREE.Mesh(cabinGeometry, cabinMaterial);
             cabin.position.z = 0.5;
             cabin.scale.z = 0.5;
-            spaceship.add(cabin);
+            shipModel.add(cabin);
             
             // Posición inicial
             spaceship.position.set(earth.position.x + 10, earth.position.y, earth.position.z);
@@ -1166,6 +1185,13 @@
             const tempV = new THREE.Vector3();
             
             Object.keys(planetLabels).forEach(name => {
+                const labelEntry = planetLabels[name];
+                const labelElement = labelEntry && labelEntry.element ? labelEntry.element : labelEntry;
+
+                if (!labelElement) {
+                    return;
+                }
+
                 let object;
                 
                 if (name === "Sol") object = sun;
@@ -1189,10 +1215,10 @@
                     const y = (- tempV.y * 0.5 + 0.5) * window.innerHeight;
                     
                     if (tempV.z < 1) { // Solo mostrar si está frente a la cámara
-                        planetLabels[name].style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-                        planetLabels[name].style.display = showLabels ? 'block' : 'none';
+                        labelElement.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+                        labelElement.style.display = showLabels ? 'block' : 'none';
                     } else {
-                        planetLabels[name].style.display = 'none';
+                        labelElement.style.display = 'none';
                     }
                 }
             });
@@ -1288,28 +1314,42 @@
             // Actualizar posición de los propulsores
             updateThrusterPositions();
             
-            // Seguir la nave con la cámara
+            // Cámara bloqueada a la perspectiva de la nave
             if (gameActive) {
-                camera.position.x = spaceship.position.x - 15 * Math.cos(spaceshipRotation);
-                camera.position.z = spaceship.position.z - 15 * Math.sin(spaceshipRotation);
-                camera.position.y = spaceship.position.y + 5;
-                camera.lookAt(spaceship.position);
+                const cameraAngle = spaceshipRotation + cameraYawOffset;
+                const forwardX = Math.cos(cameraAngle);
+                const forwardZ = Math.sin(cameraAngle);
+                const dynamicHeight = CAMERA_HEIGHT_OFFSET + (cameraPitchOffset * 6);
+
+                cameraTargetPosition.set(
+                    spaceship.position.x - forwardX * CAMERA_FOLLOW_DISTANCE,
+                    spaceship.position.y + dynamicHeight,
+                    spaceship.position.z - forwardZ * CAMERA_FOLLOW_DISTANCE
+                );
+
+                camera.position.lerp(cameraTargetPosition, CAMERA_LERP_FACTOR);
+
+                cameraLookTarget.set(
+                    spaceship.position.x + forwardX * CAMERA_LOOK_AHEAD_DISTANCE,
+                    spaceship.position.y + (cameraPitchOffset * 2),
+                    spaceship.position.z + forwardZ * CAMERA_LOOK_AHEAD_DISTANCE
+                );
+                camera.lookAt(cameraLookTarget);
             }
         }
 
         function applyGravity(celestialBody, gravityStrength) {
-            const direction = new THREE.Vector3();
-            direction.subVectors(celestialBody.position, spaceship.position);
-            
-            const distance = direction.length();
-            direction.normalize();
-            
-            // Fuerza de gravedad inversamente proporcional al cuadrado de la distancia
-            const force = gravityStrength / (distance * distance);
-            
+            gravityDirection.subVectors(celestialBody.position, spaceship.position);
+
+            const distanceSquared = Math.max(gravityDirection.lengthSq(), MIN_GRAVITY_DISTANCE_SQUARED);
+            gravityDirection.normalize();
+
+            // Fuerza de gravedad inversamente proporcional al cuadrado de la distancia con límite
+            const acceleration = Math.min((gravityStrength / distanceSquared) * 0.01, MAX_GRAVITY_ACCELERATION);
+
             // Aplicar fuerza de gravedad a la velocidad
-            spaceshipVelocity.x += direction.x * force * 0.01;
-            spaceshipVelocity.z += direction.z * force * 0.01;
+            spaceshipVelocity.x += gravityDirection.x * acceleration;
+            spaceshipVelocity.z += gravityDirection.z * acceleration;
         }
 
         function updateThrusterPositions() {
@@ -1335,13 +1375,13 @@
 
         function checkCollisions() {
             // Verificar colisión con el Sol
-            if (distanceTo(sun) < 12) {
+            if (distanceToBodySurface(sun, 10 * planetScale) <= 0.5) {
                 gameOver("¡Te has acercado demasiado al Sol y tu nave se ha desintegrado!");
                 return;
             }
             
             // Verificar colisión con la Tierra
-            if (distanceTo(earth) < 5) {
+            if (distanceToBodySurface(earth, 3 * planetScale) <= 0.5) {
                 if (currentMission === 3 && !missions[currentMission].objectives[0].completed) {
                     // Aterrizaje exitoso en la Tierra para la misión final
                     collectData();
@@ -1352,8 +1392,14 @@
             }
             
             // Verificar colisión con Marte
-            if (distanceTo(mars) < 4) {
+            if (distanceToBodySurface(mars, 2 * planetScale) <= 0.5) {
                 gameOver("¡Has chocado contra Marte!");
+                return;
+            }
+
+            // Verificar colisión con la Luna (posición mundial)
+            if (distanceToBodySurface(moon, 0.8 * planetScale, true) <= 0.4) {
+                gameOver("¡Has chocado contra la Luna!");
                 return;
             }
             
@@ -1368,6 +1414,15 @@
             const distance = new THREE.Vector3();
             distance.subVectors(spaceship.position, object.position);
             return distance.length();
+        }
+
+        function distanceToBodySurface(object, radius, useWorldPosition = false) {
+            if (useWorldPosition) {
+                object.getWorldPosition(moonWorldPosition);
+                return spaceship.position.distanceTo(moonWorldPosition) - radius;
+            }
+
+            return spaceship.position.distanceTo(object.position) - radius;
         }
 
         function checkMissionObjectives() {
@@ -1489,14 +1544,17 @@
             
             // Restablecer valores
             fuel = 100;
+            cameraYawOffset = 0;
+            cameraPitchOffset = 0;
+            isCameraDragActive = false;
             
             // Actualizar UI de misión
             updateMissionUI();
             
-            // Desactivar controles de órbita
+            // Bloquear controles de órbita durante el juego
             controls.enabled = false;
             
-            // Seguir la nave con la cámara
+            // Posición inicial de cámara en perspectiva de nave
             camera.position.set(
                 spaceship.position.x - 15,
                 spaceship.position.y + 5,
@@ -1527,6 +1585,8 @@
 
         function gameOver(reason) {
             gameActive = false;
+            isCameraDragActive = false;
+            document.body.style.cursor = 'default';
             document.getElementById('game-over-reason').textContent = reason;
             document.getElementById('final-score').textContent = score;
             document.getElementById('game-over').style.display = 'block';
@@ -1591,6 +1651,26 @@
         }
 
         function onMouseMove(event) {
+            if (gameActive) {
+                if (isCameraDragActive) {
+                    const deltaX = event.clientX - lastCameraMouseX;
+                    const deltaY = event.clientY - lastCameraMouseY;
+
+                    cameraYawOffset -= deltaX * CAMERA_MOUSE_SENSITIVITY;
+                    cameraPitchOffset += deltaY * CAMERA_MOUSE_SENSITIVITY;
+
+                    cameraYawOffset = Math.max(-CAMERA_ORBIT_YAW_LIMIT, Math.min(CAMERA_ORBIT_YAW_LIMIT, cameraYawOffset));
+                    cameraPitchOffset = Math.max(CAMERA_ORBIT_PITCH_MIN, Math.min(CAMERA_ORBIT_PITCH_MAX, cameraPitchOffset));
+
+                    lastCameraMouseX = event.clientX;
+                    lastCameraMouseY = event.clientY;
+                }
+
+                tooltip.style.display = 'none';
+                document.body.style.cursor = isCameraDragActive ? 'grabbing' : 'default';
+                return;
+            }
+
             // Calcular posición del mouse normalizada
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
@@ -1634,6 +1714,24 @@
                 const object = intersects[0].object;
                 selectedObject = object;
                 updateInfoPanel(object.name);
+            }
+        }
+
+        function onMouseDown(event) {
+            if (!gameActive || event.button !== 0) return;
+
+            isCameraDragActive = true;
+            lastCameraMouseX = event.clientX;
+            lastCameraMouseY = event.clientY;
+            document.body.style.cursor = 'grabbing';
+        }
+
+        function onMouseUp(event) {
+            if (event.button !== 0) return;
+
+            isCameraDragActive = false;
+            if (!gameActive) {
+                document.body.style.cursor = 'default';
             }
         }
 
@@ -2039,6 +2137,8 @@
             // Event listeners
             window.addEventListener('resize', onWindowResize);
             window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mousedown', onMouseDown);
+            window.addEventListener('mouseup', onMouseUp);
             window.addEventListener('click', onMouseClick);
             window.addEventListener('keydown', onKeyDown);
             window.addEventListener('keyup', onKeyUp);
@@ -2097,10 +2197,14 @@
             
             if (gameActive) {
                 updateSpaceship(delta);
+                checkCollisions();
+                checkMissionObjectives();
             }
             
-            // Actualizar controles
-            controls.update();
+            // Actualizar controles de cámara solo fuera del modo juego
+            if (!gameActive) {
+                controls.update();
+            }
             
             // Animar órbitas
             if (simulationSpeed > 0) {
@@ -2122,6 +2226,7 @@
             
             // Actualizar etiquetas
             updateLabels();
+            updatePlanetLabels();
             
             renderer.render(scene, camera);
         }
