@@ -1,16 +1,52 @@
 
   <!DOCTYPE html>
-  <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Plataforma de entrenamiento</title>
-      <script type="module" crossorigin src="./assets/index-D6Wf9Jxs.js"></script>
-      <link rel="stylesheet" crossorigin href="./assets/index-CM-HRw3x.css">
-    </head>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Plataforma de entrenamiento</title>
 
-    <body>
-      <div id="root"></div>
-    </body>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json" />
+
+    <!-- Theme color for browser UI -->
+    <meta name="theme-color" content="#0f172a" />
+
+    <!-- Mobile web app capable (fullscreen on add to home) -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Entrenamiento" />
+
+    <!-- Splash screen background -->
+    <meta name="msapplication-navbutton-color" content="#0f172a" />
+    <meta name="msapplication-starturl" content="./" />
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512x512.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="./icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="./icons/icon-152x152.png" />
+    <script type="module" crossorigin src="./assets/index-B1-5vCvn.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CM-HRw3x.css">
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <!-- Register Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('./sw.js', { scope: './' })
+            .then(function (reg) {
+              console.log('[PWA] Service Worker registrado:', reg.scope);
+            })
+            .catch(function (err) {
+              console.warn('[PWA] Error al registrar Service Worker:', err);
+            });
+        });
+      }
+    </script>
   </html>
   
