@@ -9,7 +9,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Atajo Android">
-  <link rel="manifest" href="./manifest.json">
+  <link rel="manifest" href="https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/manifest.json">
+  <link rel="canonical" href="https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/">
+  <meta property="og:url" content="https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/">
   <link rel="icon" href="./icons/icon-192.png">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <link rel="stylesheet" href="./styles.css">
@@ -24,7 +26,7 @@
         </span>
         <span>
           <strong>Atajo Android</strong>
-          <small>Ajustes rápidos y guiados</small>
+          <small>Ajustes rápidos y guiados · v3</small>
         </span>
       </a>
       <button id="installButton" class="button button-secondary install-button" hidden>
@@ -64,6 +66,38 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 7h2v6h-2V7Zm0 8h2v2h-2v-2Zm1-13a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z"/></svg>
         <span>Los accesos directos funcionan únicamente desde un navegador compatible en Android. En otros dispositivos puedes usar las guías.</span>
       </div>
+
+      <section id="actionResult" class="action-result" hidden aria-live="polite"></section>
+
+      <section id="linkPermissionPanel" class="link-permission-panel" hidden aria-live="polite">
+        <div class="link-permission-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M10.59 13.41a2 2 0 0 0 2.82 0l3-3a2 2 0 1 0-2.82-2.82l-1.3 1.29-1.41-1.41 1.29-1.3a4 4 0 1 1 5.66 5.66l-3 3a4 4 0 0 1-5.66 0l1.42-1.42Zm2.82-2.82a2 2 0 0 0-2.82 0l-3 3a2 2 0 1 0 2.82 2.82l1.3-1.29 1.41 1.41-1.29 1.3a4 4 0 1 1-5.66-5.66l3-3a4 4 0 0 1 5.66 0l-1.42 1.42Z"/></svg>
+        </div>
+        <div class="link-permission-content">
+          <button class="link-permission-close" type="button" data-dismiss-link-permission aria-label="Cerrar">&times;</button>
+          <span class="eyebrow">Apertura de enlaces</span>
+          <h2>¿Permitir que Atajo Android abra sus enlaces?</h2>
+          <p>
+            Al aceptar, la aplicación guardará tu preferencia y Android o el navegador
+            podrá abrir dentro de la PWA los enlaces que pertenezcan a esta dirección:
+          </p>
+          <code class="official-app-url">https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/</code>
+          <div class="link-permission-actions">
+            <button class="button button-primary" type="button" data-accept-app-links>
+              Aceptar enlaces
+            </button>
+            <button class="button button-secondary" type="button" data-test-app-link>
+              Probar enlace
+            </button>
+            <button class="button button-ghost" type="button" data-copy-app-link>
+              Copiar enlace
+            </button>
+          </div>
+          <small>
+            La asociación final depende de la versión de Android y del navegador instalado.
+          </small>
+        </div>
+      </section>
 
       <section class="section">
         <div class="section-heading">
@@ -194,22 +228,6 @@
     <footer>
       <p>Atajo Android no modifica ajustes automáticamente. Todas las acciones deben confirmarse dentro de la aplicación Ajustes.</p>
     </footer>
-  </div>
-
-  <div id="fallbackModal" class="modal-backdrop" hidden>
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="fallbackTitle">
-      <button id="closeModal" class="modal-close" aria-label="Cerrar">&times;</button>
-      <div class="modal-icon">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 7h2v6h-2V7Zm0 8h2v2h-2v-2Zm1-13a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z"/></svg>
-      </div>
-      <h2 id="fallbackTitle">Android no abrió ese acceso directo</h2>
-      <p id="fallbackText"></p>
-      <div id="fallbackSteps" class="modal-steps"></div>
-      <div class="modal-actions">
-        <button id="fallbackGeneralApps" class="button button-primary" hidden>Abrir lista general</button>
-        <button id="copyPackageButton" class="button button-secondary" hidden>Copiar paquete</button>
-      </div>
-    </section>
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>

@@ -2,6 +2,10 @@
   "use strict";
 
   const STORAGE_KEY = "atajo-android-saved-apps-v1";
+  const APP_URL = "https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/";
+  const LINK_PERMISSION_KEY = "atajo-android-link-permission-v1";
+  const INTENT_ATTEMPT_KEY = "atajo-android-intent-attempt-v2";
+  const INTENT_ATTEMPT_TTL = 30000;
   const PACKAGE_RE = /^(?:[a-zA-Z][a-zA-Z0-9_]*\.)+[a-zA-Z][a-zA-Z0-9_]*$/;
 
   const commonApps = [
@@ -50,47 +54,62 @@
     savedCount: document.getElementById("savedCount"),
     commonApps: document.getElementById("commonApps"),
     guideContent: document.getElementById("guideContent"),
-    fallbackModal: document.getElementById("fallbackModal"),
-    fallbackText: document.getElementById("fallbackText"),
-    fallbackSteps: document.getElementById("fallbackSteps"),
-    closeModal: document.getElementById("closeModal"),
-    fallbackGeneralApps: document.getElementById("fallbackGeneralApps"),
-    copyPackageButton: document.getElementById("copyPackageButton"),
+    actionResult: document.getElementById("actionResult"),
+    linkPermissionPanel: document.getElementById("linkPermissionPanel"),
     toast: document.getElementById("toast")
   };
 
   let deferredInstallPrompt = null;
-  let fallbackPackage = "";
   let toastTimer = null;
 
   function isAndroid() {
     return /Android/i.test(navigator.userAgent);
   }
 
-  function getFallbackUrl(code, packageName = "") {
+  function createAttempt(code, packageName = "") {
+    const attempt = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      code,
+      packageName,
+      createdAt: Date.now()
+    };
+
+    try {
+      sessionStorage.setItem(INTENT_ATTEMPT_KEY, JSON.stringify(attempt));
+    } catch {
+      // La aplicación sigue funcionando aunque el navegador bloquee sessionStorage.
+    }
+
+    return attempt.id;
+  }
+
+  function getFallbackUrl(code, packageName = "", attemptId = "") {
     const url = new URL(location.href);
     url.search = "";
     url.hash = "";
     url.searchParams.set("fallback", code);
     if (packageName) url.searchParams.set("package", packageName);
+    if (attemptId) url.searchParams.set("attempt", attemptId);
     return url.toString();
   }
 
   function createIntent(action, options = {}) {
-    const fallbackUrl = encodeURIComponent(getFallbackUrl(options.fallback || "generic", options.packageName || ""));
+    const fallbackUrl = encodeURIComponent(
+      getFallbackUrl(
+        options.fallback || "generic",
+        options.packageName || "",
+        options.attemptId || ""
+      )
+    );
+
     if (options.scheme && options.data) {
       return `intent:${options.data}#Intent;scheme=${options.scheme};action=${action};S.browser_fallback_url=${fallbackUrl};end`;
     }
+
     return `intent:#Intent;action=${action};S.browser_fallback_url=${fallbackUrl};end`;
   }
 
   function launchIntent(uri, message) {
-    if (!isAndroid()) {
-      showToast("Este acceso directo necesita Android. Consulta la guía manual.");
-      document.getElementById("guias").scrollIntoView({ behavior: "smooth" });
-      return;
-    }
-
     const link = document.createElement("a");
     link.href = uri;
     link.style.display = "none";
@@ -101,43 +120,50 @@
     showToast(message || "Intentando abrir Ajustes…");
   }
 
-  function openSetting(type, packageName = "") {
-    const intents = {
-      developers: createIntent(
-        "android.settings.APPLICATION_DEVELOPMENT_SETTINGS",
-        { fallback: "developers" }
-      ),
-      apps: createIntent(
-        "android.settings.MANAGE_APPLICATIONS_SETTINGS",
-        { fallback: "apps" }
-      ),
-      settings: createIntent(
-        "android.settings.SETTINGS",
-        { fallback: "settings" }
-      )
-    };
+  function showDesktopGuide(message) {
+    showToast(message || "Este acceso necesita Android. Se abrió la guía manual.");
+    document.getElementById("guias").scrollIntoView({ behavior: "smooth" });
+  }
 
-    if (type === "app-details") {
+  function openSetting(type, packageName = "") {
+    if (!isAndroid()) {
+      showDesktopGuide("Estás fuera de Android. Consulta la ruta manual.");
+      return;
+    }
+
+    let action = "";
+    let options = {};
+    let message = "Intentando abrir Ajustes…";
+
+    if (type === "developers") {
+      action = "android.settings.APPLICATION_DEVELOPMENT_SETTINGS";
+      options.fallback = "developers";
+    } else if (type === "apps") {
+      action = "android.settings.MANAGE_APPLICATIONS_SETTINGS";
+      options.fallback = "apps";
+    } else if (type === "settings") {
+      action = "android.settings.SETTINGS";
+      options.fallback = "settings";
+    } else if (type === "app-details") {
       if (!PACKAGE_RE.test(packageName)) {
         showToast("El nombre del paquete no tiene un formato válido.");
         return;
       }
-      const uri = createIntent(
-        "android.settings.APPLICATION_DETAILS_SETTINGS",
-        {
-          scheme: "package",
-          data: packageName,
-          packageName,
-          fallback: "app-details"
-        }
-      );
-      launchIntent(uri, `Abriendo la ficha de ${packageName}…`);
+
+      action = "android.settings.APPLICATION_DETAILS_SETTINGS";
+      options = {
+        scheme: "package",
+        data: packageName,
+        packageName,
+        fallback: "app-details"
+      };
+      message = `Abriendo la ficha de ${packageName}…`;
+    } else {
       return;
     }
 
-    if (intents[type]) {
-      launchIntent(intents[type], "Intentando abrir Ajustes…");
-    }
+    options.attemptId = createAttempt(options.fallback, packageName);
+    launchIntent(createIntent(action, options), message);
   }
 
   function getSavedApps() {
@@ -236,52 +262,165 @@
     toastTimer = setTimeout(() => elements.toast.classList.remove("show"), 3200);
   }
 
-  function showFallback(code, packageName = "") {
-    fallbackPackage = packageName;
-    elements.fallbackGeneralApps.hidden = true;
-    elements.copyPackageButton.hidden = true;
-
-    const content = {
+  function fallbackContent(code, packageName = "") {
+    return {
       developers: {
-        text: "El navegador o el fabricante bloqueó la apertura directa. Puedes llegar manualmente siguiendo esta ruta:",
+        title: "Android no abrió Opciones de desarrollador",
+        text: "El navegador o el fabricante bloqueó el acceso directo. La aplicación sigue disponible y puedes usar esta ruta manual:",
         steps: ["Abre Ajustes", "Entra en Sistema o Acerca del teléfono", "Busca Opciones de desarrollador", "Si no aparece, pulsa 7 veces Número de compilación"]
       },
       apps: {
-        text: "No se pudo abrir automáticamente la lista de aplicaciones. Utiliza esta ruta:",
+        title: "Android no abrió la lista de aplicaciones",
+        text: "No se pudo abrir automáticamente, pero puedes llegar desde Ajustes:",
         steps: ["Abre Ajustes", "Entra en Aplicaciones o Apps", "Pulsa Ver todas o Administrar aplicaciones", "Selecciona la aplicación"]
       },
       "app-details": {
-        text: `No se pudo abrir directamente la ficha de ${packageName || "la aplicación"}.`,
-        steps: ["Copia el paquete si lo necesitas", "Abre Ajustes", "Entra en Aplicaciones", "Busca la app por su nombre y abre Almacenamiento"],
+        title: "No se pudo abrir esa aplicación",
+        text: `Android bloqueó el acceso directo a ${packageName || "la aplicación"}. Puedes copiar el paquete y buscar la aplicación manualmente.`,
+        steps: ["Abre Ajustes", "Entra en Aplicaciones", "Busca la aplicación por su nombre", "Abre Almacenamiento para borrar datos o caché"],
         showGeneral: true,
         showCopy: Boolean(packageName)
       },
       settings: {
-        text: "No se pudo abrir la aplicación Ajustes automáticamente.",
-        steps: ["Busca el icono de Ajustes en tu teléfono", "Ábrelo manualmente", "Usa el buscador interno para encontrar la opción"]
+        title: "Android no abrió Ajustes",
+        text: "Abre la aplicación Ajustes manualmente y usa su buscador interno.",
+        steps: ["Busca el icono de Ajustes", "Ábrelo", "Escribe el nombre de la opción en el buscador"]
       },
       generic: {
-        text: "Android no encontró una pantalla compatible para este acceso directo.",
-        steps: ["Abre Ajustes manualmente", "Utiliza el buscador de Ajustes", "Consulta las guías de esta aplicación"]
+        title: "Acceso no disponible",
+        text: "El navegador no encontró una pantalla compatible. Puedes continuar usando las guías de la aplicación.",
+        steps: ["Abre Ajustes manualmente", "Usa el buscador de Ajustes", "Consulta la ruta de tu fabricante"]
       }
     }[code] || null;
-
-    if (!content) return;
-    elements.fallbackText.textContent = content.text;
-    elements.fallbackSteps.innerHTML = `<ol>${content.steps.map(step => `<li>${escapeHtml(step)}</li>`).join("")}</ol>`;
-    elements.fallbackGeneralApps.hidden = !content.showGeneral;
-    elements.copyPackageButton.hidden = !content.showCopy;
-    elements.fallbackModal.hidden = false;
-    document.body.style.overflow = "hidden";
   }
 
-  function closeFallback() {
-    elements.fallbackModal.hidden = true;
-    document.body.style.overflow = "";
-    const url = new URL(location.href);
-    url.searchParams.delete("fallback");
-    url.searchParams.delete("package");
-    history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+  function showInlineFallback(code, packageName = "") {
+    const content = fallbackContent(code, packageName);
+    if (!content || !elements.actionResult) return;
+
+    elements.actionResult.innerHTML = `
+      <div class="action-result-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 7h2v6h-2V7Zm0 8h2v2h-2v-2Zm1-13a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z"/></svg>
+      </div>
+      <div class="action-result-content">
+        <button class="action-result-close" type="button" data-dismiss-result aria-label="Cerrar aviso">&times;</button>
+        <h2>${escapeHtml(content.title)}</h2>
+        <p>${escapeHtml(content.text)}</p>
+        <ol>${content.steps.map(step => `<li>${escapeHtml(step)}</li>`).join("")}</ol>
+        <div class="action-result-actions">
+          ${content.showGeneral ? '<button class="button button-primary" type="button" data-result-general-apps>Abrir lista general</button>' : ''}
+          ${content.showCopy ? `<button class="button button-secondary" type="button" data-copy-package="${escapeHtml(packageName)}">Copiar paquete</button>` : ''}
+          <a class="button button-secondary" href="#guias">Ver guía completa</a>
+        </div>
+      </div>
+    `;
+
+    elements.actionResult.hidden = false;
+    setTimeout(() => {
+      elements.actionResult.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 120);
+  }
+
+  function hideInlineFallback() {
+    if (!elements.actionResult) return;
+    elements.actionResult.hidden = true;
+    elements.actionResult.innerHTML = "";
+  }
+
+
+  function isStandaloneMode() {
+    return window.matchMedia("(display-mode: standalone)").matches
+      || window.matchMedia("(display-mode: fullscreen)").matches
+      || window.navigator.standalone === true;
+  }
+
+  function getLinkPermissionState() {
+    try {
+      return localStorage.getItem(LINK_PERMISSION_KEY) || "";
+    } catch {
+      return "";
+    }
+  }
+
+  function setLinkPermissionState(value) {
+    try {
+      localStorage.setItem(LINK_PERMISSION_KEY, value);
+    } catch {
+      // La PWA puede continuar aunque el almacenamiento local esté restringido.
+    }
+  }
+
+  function showLinkPermissionPanel(force = false) {
+    if (!elements.linkPermissionPanel) return;
+
+    const state = getLinkPermissionState();
+    if (!force && state) return;
+
+    elements.linkPermissionPanel.classList.remove("accepted");
+    elements.linkPermissionPanel.hidden = false;
+  }
+
+  function hideLinkPermissionPanel() {
+    if (!elements.linkPermissionPanel) return;
+    elements.linkPermissionPanel.hidden = true;
+  }
+
+  function markLinksAccepted() {
+    setLinkPermissionState("accepted");
+
+    if (!elements.linkPermissionPanel) return;
+
+    elements.linkPermissionPanel.classList.add("accepted");
+    elements.linkPermissionPanel.innerHTML = `
+      <div class="link-permission-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="m9 16.17-3.88-3.88-1.41 1.42L9 19 20.29 7.71l-1.41-1.42L9 16.17Z"/></svg>
+      </div>
+      <div class="link-permission-content">
+        <button class="link-permission-close" type="button" data-dismiss-link-permission aria-label="Cerrar">&times;</button>
+        <span class="eyebrow">Preferencia guardada</span>
+        <h2>Atajo Android está preparado para recibir sus enlaces</h2>
+        <p>
+          Los enlaces dentro de <strong>${escapeHtml(APP_URL)}</strong> podrán abrirse
+          en la PWA cuando Android y el navegador admitan la asociación.
+        </p>
+        <div class="link-permission-actions">
+          <button class="button button-primary" type="button" data-test-app-link>Probar enlace</button>
+          <button class="button button-secondary" type="button" data-copy-app-link>Copiar enlace oficial</button>
+        </div>
+      </div>
+    `;
+
+    showToast("Preferencia para abrir enlaces guardada.");
+  }
+
+  async function copyOfficialAppUrl() {
+    try {
+      await navigator.clipboard.writeText(APP_URL);
+      showToast("Enlace oficial copiado.");
+    } catch {
+      showToast(APP_URL);
+    }
+  }
+
+  function testOfficialAppUrl() {
+    const testUrl = `${APP_URL}?source=link-test&time=${Date.now()}`;
+    const opened = window.open(testUrl, "_blank", "noopener");
+
+    if (!opened) {
+      location.href = testUrl;
+    }
+  }
+
+  function setupLinkHandlingOnboarding() {
+    if (isStandaloneMode() && !getLinkPermissionState()) {
+      setTimeout(() => showLinkPermissionPanel(), 450);
+    }
+
+    window.matchMedia("(display-mode: standalone)").addEventListener?.("change", event => {
+      if (event.matches && !getLinkPermissionState()) {
+        showLinkPermissionPanel();
+      }
+    });
   }
 
   function setupInstallPrompt() {
@@ -305,6 +444,7 @@
       deferredInstallPrompt = null;
       elements.installButton.hidden = true;
       showToast("Atajo Android se instaló correctamente.");
+      setTimeout(() => showLinkPermissionPanel(true), 350);
     });
   }
 
@@ -389,31 +529,103 @@
       });
     });
 
-    elements.closeModal.addEventListener("click", closeFallback);
-    elements.fallbackModal.addEventListener("click", event => {
-      if (event.target === elements.fallbackModal) closeFallback();
-    });
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && !elements.fallbackModal.hidden) closeFallback();
-    });
-    elements.fallbackGeneralApps.addEventListener("click", () => openSetting("apps"));
-    elements.copyPackageButton.addEventListener("click", async () => {
-      if (!fallbackPackage) return;
-      try {
-        await navigator.clipboard.writeText(fallbackPackage);
-        showToast("Nombre del paquete copiado.");
-      } catch {
-        showToast(`Paquete: ${fallbackPackage}`);
+    document.addEventListener("click", async event => {
+      const acceptLinks = event.target.closest("[data-accept-app-links]");
+      if (acceptLinks) {
+        markLinksAccepted();
+        return;
+      }
+
+      const dismissLinks = event.target.closest("[data-dismiss-link-permission]");
+      if (dismissLinks) {
+        setLinkPermissionState("dismissed");
+        hideLinkPermissionPanel();
+        return;
+      }
+
+      const copyAppLink = event.target.closest("[data-copy-app-link]");
+      if (copyAppLink) {
+        await copyOfficialAppUrl();
+        return;
+      }
+
+      const testAppLink = event.target.closest("[data-test-app-link]");
+      if (testAppLink) {
+        testOfficialAppUrl();
+        return;
+      }
+
+      const dismiss = event.target.closest("[data-dismiss-result]");
+      if (dismiss) {
+        hideInlineFallback();
+        return;
+      }
+
+      const generalApps = event.target.closest("[data-result-general-apps]");
+      if (generalApps) {
+        openSetting("apps");
+        return;
+      }
+
+      const copyButton = event.target.closest("[data-copy-package]");
+      if (copyButton) {
+        const packageName = copyButton.dataset.copyPackage || "";
+        try {
+          await navigator.clipboard.writeText(packageName);
+          showToast("Nombre del paquete copiado.");
+        } catch {
+          showToast(`Paquete: ${packageName}`);
+        }
       }
     });
+  }
+
+  function readPendingAttempt() {
+    try {
+      return JSON.parse(sessionStorage.getItem(INTENT_ATTEMPT_KEY) || "null");
+    } catch {
+      return null;
+    }
+  }
+
+  function clearPendingAttempt() {
+    try {
+      sessionStorage.removeItem(INTENT_ATTEMPT_KEY);
+    } catch {
+      // Sin acción: algunos navegadores pueden bloquear sessionStorage.
+    }
+  }
+
+  function cleanTemporaryUrlParameters() {
+    const url = new URL(location.href);
+    ["fallback", "package", "attempt"].forEach(name => url.searchParams.delete(name));
+    const cleanUrl = `${url.pathname}${url.search}${url.hash}`;
+    history.replaceState({}, "", cleanUrl);
   }
 
   function processUrlActions() {
     const params = new URLSearchParams(location.search);
     const fallback = params.get("fallback");
     const packageName = params.get("package") || "";
+    const attemptId = params.get("attempt") || "";
+
     if (fallback) {
-      setTimeout(() => showFallback(fallback, packageName), 250);
+      const pending = readPendingAttempt();
+      const recent = pending && Number.isFinite(pending.createdAt)
+        && (Date.now() - pending.createdAt) <= INTENT_ATTEMPT_TTL;
+      const matches = recent
+        && pending.id === attemptId
+        && pending.code === fallback
+        && (pending.packageName || "") === packageName;
+
+      // Se limpia antes de mostrar cualquier aviso para evitar que vuelva a
+      // aparecer al recargar, abrir un marcador o regresar con el botón Atrás.
+      cleanTemporaryUrlParameters();
+      clearPendingAttempt();
+
+      if (matches) {
+        setTimeout(() => showInlineFallback(fallback, packageName), 180);
+      }
     }
 
     const action = params.get("action");
@@ -441,6 +653,7 @@
     renderCommonApps();
     renderGuide("samsung");
     setupInstallPrompt();
+    setupLinkHandlingOnboarding();
     setupNavigation();
     setupEvents();
     processUrlActions();

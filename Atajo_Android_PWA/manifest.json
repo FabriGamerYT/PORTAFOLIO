@@ -1,12 +1,12 @@
 {
-  "id": "./",
-  "name": "Atajo Android - Ajustes rápidos",
+  "id": "https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/",
+  "name": "Atajo Android v3 - Ajustes rápidos",
   "short_name": "Atajo Android",
-  "description": "Accesos rápidos y guías para Opciones de desarrollador y administración de aplicaciones en Android.",
+  "description": "Accesos rápidos para Android con apertura preferida de enlaces dentro del alcance oficial de la aplicación.",
   "lang": "es",
   "dir": "ltr",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/?source=installed",
+  "scope": "https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/",
   "display": "standalone",
   "display_override": [
     "window-controls-overlay",
@@ -46,7 +46,7 @@
       "name": "Opciones de desarrollador",
       "short_name": "Desarrollador",
       "description": "Ir al acceso de Opciones de desarrollador",
-      "url": "./?action=developers",
+      "url": "https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/?action=developers",
       "icons": [
         {
           "src": "./icons/icon-192.png",
@@ -58,13 +58,27 @@
       "name": "Administrar aplicaciones",
       "short_name": "Aplicaciones",
       "description": "Ir al administrador de aplicaciones",
-      "url": "./?action=apps",
+      "url": "https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/?action=apps",
       "icons": [
         {
           "src": "./icons/icon-192.png",
           "sizes": "192x192"
         }
       ]
+    }
+  ],
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": [
+      "navigate-existing",
+      "auto"
+    ]
+  },
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/manifest.json",
+      "id": "https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/"
     }
   ]
 }

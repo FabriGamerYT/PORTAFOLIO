@@ -1,4 +1,4 @@
-# Atajo Android PWA
+# Atajo Android PWA v3
 
 PWA instalable que sirve como panel de accesos rápidos para:
 
@@ -61,3 +61,66 @@ El nombre de un archivo como `apk.apk` no permite conocer automáticamente ese i
 - `manifest.json`: configuración instalable.
 - `service-worker.js`: funcionamiento sin conexión.
 - `icons/`: iconos de la PWA.
+
+
+## Cambios de la versión 2
+
+- Ya no aparece una ventana bloqueante al abrir o recargar la aplicación.
+- Los parámetros antiguos `?fallback=` se eliminan automáticamente.
+- Un fallo solo se muestra cuando existe un intento reciente iniciado por el usuario.
+- El aviso de fallo ahora aparece dentro de la página y se puede ignorar o cerrar.
+- En Windows y otros sistemas no Android se abre la guía manual sin lanzar un modal.
+- Caché PWA actualizado a `v2.0.0` para reemplazar la versión anterior.
+
+## Actualizar una instalación anterior
+
+Después de publicar esta versión:
+
+1. Abre la PWA con conexión a Internet.
+2. Recarga la página una vez.
+3. Cierra completamente la aplicación.
+4. Vuelve a abrirla.
+
+Si Android continúa mostrando una copia antigua, elimina los datos del sitio desde el navegador o desinstala y vuelve a instalar la PWA.
+
+
+## Apertura del enlace oficial
+
+Esta versión está asociada expresamente con:
+
+```text
+https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/
+```
+
+El manifiesto incluye:
+
+```json
+{
+  "id": "https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/",
+  "start_url": "https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/?source=installed",
+  "scope": "https://fabrigameryt.github.io/PORTAFOLIO/Atajo_Android_PWA/",
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  }
+}
+```
+
+Al instalarse o abrirse por primera vez en modo aplicación, la PWA muestra una
+solicitud no bloqueante para aceptar la apertura de enlaces. La preferencia queda
+guardada localmente.
+
+### Limitación de Android
+
+Una PWA puede solicitar al navegador que prefiera abrir los enlaces dentro de su
+alcance, pero JavaScript no puede forzar el cuadro nativo de “Abrir enlaces
+compatibles”. Android y el navegador conservan la decisión final.
+
+### Actualización
+
+La caché se actualizó a `atajo-android-v3.0.0`. Después de publicar los archivos:
+
+1. Abre la URL oficial con conexión.
+2. Recarga la página.
+3. Cierra la PWA.
+4. Vuelve a abrirla o reinstálala si continúa cargando una versión anterior.
