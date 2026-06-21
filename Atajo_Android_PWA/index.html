@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="Accesos rápidos a Opciones de desarrollador y administración de aplicaciones en Android.">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Atajo Android">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Atajo Android</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#inicio" aria-label="Ir al inicio">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7v2.17A3 3 0 0 0 3 14v4a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-4a3 3 0 0 0-2-2.83V9a7 7 0 0 0-7-7Zm-5 9V9a5 5 0 0 1 10 0v2H7Zm11 8H6a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1Z"/></svg>
+        </span>
+        <span>
+          <strong>Atajo Android</strong>
+          <small>Ajustes rápidos y guiados</small>
+        </span>
+      </a>
+      <button id="installButton" class="button button-secondary install-button" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 3h2v10.17l3.59-3.58L18 11l-6 6-6-6 1.41-1.41L11 13.17V3ZM5 19h14v2H5v-2Z"/></svg>
+        Instalar
+      </button>
+    </header>
+
+    <main>
+      <section id="inicio" class="hero">
+        <div class="hero-copy">
+          <span class="eyebrow">PWA para Android</span>
+          <h1>Llega al ajuste correcto sin perderte entre menús.</h1>
+          <p>Abre accesos directos a Opciones de desarrollador, la lista de aplicaciones o la ficha de una aplicación concreta.</p>
+          <div class="hero-actions">
+            <button class="button button-primary" data-open-setting="developers">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8.7 15.9-4-4 4-4 1.4 1.4-2.6 2.6 2.6 2.6-1.4 1.4Zm6.6 0-1.4-1.4 2.6-2.6-2.6-2.6 1.4-1.4 4 4-4 4ZM10.1 19l2.9-14 2 .4-2.9 14-2-.4Z"/></svg>
+              Opciones de desarrollador
+            </button>
+            <button class="button button-ghost" data-open-setting="apps">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 0h6v6h-6v-6ZM6 6v2h2V6H6Zm10 0v2h2V6h-2ZM6 16v2h2v-2H6Zm10 0v2h2v-2h-2Z"/></svg>
+              Ver aplicaciones
+            </button>
+          </div>
+        </div>
+        <div class="phone-preview" aria-hidden="true">
+          <div class="phone-speaker"></div>
+          <div class="preview-header">Ajustes</div>
+          <div class="preview-search"></div>
+          <div class="preview-row"><span class="preview-icon code"></span><span><b>Opciones de desarrollador</b><i>Depuración USB y herramientas</i></span></div>
+          <div class="preview-row"><span class="preview-icon apps"></span><span><b>Aplicaciones</b><i>Datos, permisos y desinstalación</i></span></div>
+          <div class="preview-row"><span class="preview-icon storage"></span><span><b>Almacenamiento</b><i>Uso y limpieza</i></span></div>
+        </div>
+      </section>
+
+      <div id="environmentNotice" class="notice" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 7h2v6h-2V7Zm0 8h2v2h-2v-2Zm1-13a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z"/></svg>
+        <span>Los accesos directos funcionan únicamente desde un navegador compatible en Android. En otros dispositivos puedes usar las guías.</span>
+      </div>
+
+      <section class="section">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Accesos principales</span>
+            <h2>Dos pasos menos, todos los días</h2>
+          </div>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card accent-blue">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.4 16.6 4.8 12l4.6-4.6 1.4 1.4L7.6 12l3.2 3.2-1.4 1.4Zm5.2 0-1.4-1.4 3.2-3.2-3.2-3.2 1.4-1.4 4.6 4.6-4.6 4.6ZM10.3 20l2.9-16 2 .4-2.9 16-2-.4Z"/></svg>
+            </div>
+            <div>
+              <span class="step">Acceso 01</span>
+              <h3>Opciones de desarrollador</h3>
+              <p>Intenta abrir directamente la pantalla donde puedes activar las opciones y luego habilitar Depuración USB.</p>
+            </div>
+            <button class="button button-card" data-open-setting="developers">Abrir ahora</button>
+          </article>
+
+          <article class="feature-card accent-violet">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3h7v7H4V3Zm2 2v3h3V5H6Zm7-2h7v7h-7V3Zm2 2v3h3V5h-3ZM4 13h7v7H4v-7Zm2 2v3h3v-3H6Zm7-2h7v7h-7v-7Zm2 2v3h3v-3h-3Z"/></svg>
+            </div>
+            <div>
+              <span class="step">Acceso 02</span>
+              <h3>Todas las aplicaciones</h3>
+              <p>Abre la lista de apps instaladas. Toca una para borrar caché o datos, desinstalarla o deshabilitarla si Android lo permite.</p>
+            </div>
+            <button class="button button-card" data-open-setting="apps">Abrir ahora</button>
+          </article>
+
+          <article class="feature-card accent-green">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3H5a2 2 0 0 0-2 2v5h7V3Zm-5 2h3v3H5V5Zm16 0a2 2 0 0 0-2-2h-5v7h7V5Zm-5 0h3v3h-3V5ZM3 19a2 2 0 0 0 2 2h5v-7H3v5Zm2-3h3v3H5v-3Zm9 5h5a2 2 0 0 0 2-2v-5h-7v7Zm2-5h3v3h-3v-3Z"/></svg>
+            </div>
+            <div>
+              <span class="step">Acceso 03</span>
+              <h3>Una aplicación específica</h3>
+              <p>Guarda el identificador del paquete y entra directamente a su ficha de información cuando lo necesites.</p>
+            </div>
+            <a class="button button-card" href="#aplicaciones">Elegir aplicación</a>
+          </article>
+        </div>
+      </section>
+
+      <section id="aplicaciones" class="section section-panel">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Aplicaciones específicas</span>
+            <h2>Guarda tus accesos frecuentes</h2>
+            <p class="section-description">El archivo <strong>apk.apk</strong> no revela por sí solo el paquete. Necesitas un identificador parecido a <code>com.empresa.aplicacion</code>.</p>
+          </div>
+        </div>
+
+        <form id="appForm" class="app-form" novalidate>
+          <label>
+            <span>Nombre visible</span>
+            <input id="appName" name="name" type="text" maxlength="40" placeholder="Ejemplo: Mi aplicación" autocomplete="off">
+          </label>
+          <label>
+            <span>Nombre del paquete</span>
+            <input id="packageName" name="package" type="text" maxlength="150" placeholder="com.empresa.aplicacion" inputmode="url" autocapitalize="none" autocomplete="off" spellcheck="false" required>
+          </label>
+          <button class="button button-primary" type="submit">Guardar acceso</button>
+        </form>
+        <p id="formError" class="form-error" role="alert" hidden></p>
+
+        <div class="subsection-heading">
+          <h3>Mis accesos</h3>
+          <span id="savedCount" class="count-badge">0</span>
+        </div>
+        <div id="savedApps" class="app-list"></div>
+
+        <div class="subsection-heading common-heading">
+          <h3>Aplicaciones comunes</h3>
+          <span class="muted">El paquete puede variar según el fabricante</span>
+        </div>
+        <div id="commonApps" class="common-grid"></div>
+      </section>
+
+      <section id="guias" class="section">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Ruta manual de respaldo</span>
+            <h2>Cuando Android cambia el camino</h2>
+            <p class="section-description">Los nombres pueden variar ligeramente según la versión del sistema y la capa del fabricante.</p>
+          </div>
+        </div>
+
+        <div class="guide-tabs" role="tablist" aria-label="Fabricantes Android">
+          <button class="guide-tab active" data-guide="samsung" role="tab" aria-selected="true">Samsung</button>
+          <button class="guide-tab" data-guide="xiaomi" role="tab" aria-selected="false">Xiaomi</button>
+          <button class="guide-tab" data-guide="motorola" role="tab" aria-selected="false">Motorola</button>
+          <button class="guide-tab" data-guide="pixel" role="tab" aria-selected="false">Android puro</button>
+          <button class="guide-tab" data-guide="huawei" role="tab" aria-selected="false">Huawei/Honor</button>
+        </div>
+
+        <div id="guideContent" class="guide-content" aria-live="polite"></div>
+
+        <div class="safety-card">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 5.5V11c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5.5L12 2Zm0 2.14 7 2.72V11c0 4.5-2.93 8.82-7 9.91C7.93 19.82 5 15.5 5 11V6.86l7-2.72Zm-1 4.36h2v5h-2v-5Zm0 7h2v2h-2v-2Z"/></svg>
+          <div>
+            <h3>Antes de deshabilitar una aplicación</h3>
+            <p>No deshabilites Ajustes, System UI, el launcher, Servicios de Google Play, el instalador de paquetes ni otros componentes del sistema que no reconozcas.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Navegación principal">
+      <a href="#inicio" class="active">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 8h-3v9h-5v-6h-2v6H6v-9H3l9-8Zm0 2.7L8 9.26V18h1v-6h6v6h1V9.26L12 5.7Z"/></svg>
+        <span>Inicio</span>
+      </a>
+      <a href="#aplicaciones">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 0h6v6h-6v-6Z"/></svg>
+        <span>Apps</span>
+      </a>
+      <a href="#guias">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V3Zm2 2v10.17c.31-.11.65-.17 1-.17h9V5H7Zm1 12a1 1 0 0 0 0 2h9v-2H8Z"/></svg>
+        <span>Guías</span>
+      </a>
+    </nav>
+
+    <footer>
+      <p>Atajo Android no modifica ajustes automáticamente. Todas las acciones deben confirmarse dentro de la aplicación Ajustes.</p>
+    </footer>
+  </div>
+
+  <div id="fallbackModal" class="modal-backdrop" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="fallbackTitle">
+      <button id="closeModal" class="modal-close" aria-label="Cerrar">&times;</button>
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 7h2v6h-2V7Zm0 8h2v2h-2v-2Zm1-13a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z"/></svg>
+      </div>
+      <h2 id="fallbackTitle">Android no abrió ese acceso directo</h2>
+      <p id="fallbackText"></p>
+      <div id="fallbackSteps" class="modal-steps"></div>
+      <div class="modal-actions">
+        <button id="fallbackGeneralApps" class="button button-primary" hidden>Abrir lista general</button>
+        <button id="copyPackageButton" class="button button-secondary" hidden>Copiar paquete</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>

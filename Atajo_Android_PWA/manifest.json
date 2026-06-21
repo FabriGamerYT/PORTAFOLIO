@@ -1,0 +1,70 @@
+{
+  "id": "./",
+  "name": "Atajo Android - Ajustes rápidos",
+  "short_name": "Atajo Android",
+  "description": "Accesos rápidos y guías para Opciones de desarrollador y administración de aplicaciones en Android.",
+  "lang": "es",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait-primary",
+  "background_color": "#f3f5f9",
+  "theme_color": "#111827",
+  "categories": [
+    "utilities",
+    "productivity"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Opciones de desarrollador",
+      "short_name": "Desarrollador",
+      "description": "Ir al acceso de Opciones de desarrollador",
+      "url": "./?action=developers",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Administrar aplicaciones",
+      "short_name": "Aplicaciones",
+      "description": "Ir al administrador de aplicaciones",
+      "url": "./?action=apps",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
