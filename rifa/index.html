@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Rifa ₡50.000</title>
+<style>
+  body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:linear-gradient(135deg,#ffe1ec,#fff7d6);
+    color:#2b2b2b;
+  }
+  .card{
+    max-width:950px;
+    margin:25px auto;
+    background:white;
+    border-radius:25px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,.18);
+    text-align:center;
+  }
+  h1{margin:0;font-size:42px;color:#c2185b}
+  .premio{font-size:44px;font-weight:bold;color:#0f8f4f;margin:10px 0}
+  .info{font-size:21px;margin:7px 0}
+  .stats{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    flex-wrap:wrap;
+    margin:20px 0;
+  }
+  .stat{
+    background:#fff0f6;
+    border:2px solid #f4b6cf;
+    border-radius:15px;
+    padding:10px 18px;
+    font-weight:bold;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(10,1fr);
+    gap:10px;
+    margin-top:20px;
+  }
+  .num{
+    min-height:80px;
+    border:2px solid #c2185b;
+    border-radius:14px;
+    padding:8px 4px;
+    background:#fff5fa;
+    cursor:pointer;
+    user-select:none;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    position:relative;
+  }
+  .numero{
+    font-size:24px;
+    font-weight:bold;
+  }
+  .estado{
+    font-size:12px;
+    color:#777;
+    margin-top:4px;
+  }
+  .comprador{
+    font-size:11px;
+    font-weight:bold;
+    color:#444;
+    margin-top:3px;
+    word-break:break-word;
+  }
+  .telefono{
+    font-size:10px;
+    color:#555;
+  }
+  .num.vendido{
+    background:#eeeeee;
+    border-color:#777;
+  }
+  .num.vendido::after{
+    content:"X";
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:55px;
+    color:red;
+    font-weight:900;
+    opacity:.35;
+    pointer-events:none;
+  }
+  .nota{
+    margin-top:25px;
+    font-size:17px;
+    color:#555;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:25px;
+    font-size:15px;
+  }
+  th,td{
+    border:1px solid #ddd;
+    padding:8px;
+  }
+  th{
+    background:#c2185b;
+    color:white;
+  }
+  button{
+    margin-top:18px;
+    padding:12px 18px;
+    border:none;
+    border-radius:12px;
+    background:#c2185b;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+  }
+  button:hover{background:#9c164b}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>🎉 Gran Rifa 🎉</h1>
+  <div class="premio">Premio: ₡50.000</div>
+  <div class="info">Valor del número: <strong>₡2.000</strong></div>
+  <div class="info">Se juega con la Lotería Nacional</div>
+  <div class="info">Domingo 5 de julio de 2026</div>
+
+  <div class="stats">
+    <div class="stat">Disponibles: <span id="disponibles">100</span></div>
+    <div class="stat">Vendidos: <span id="vendidos">0</span></div>
+    <div class="stat">Recaudado: ₡<span id="recaudado">0</span></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="nota">
+    Haz clic en un número para registrar comprador.  
+    Si ya está vendido, puedes ver o liberar el número.
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Número</th>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+      </tr>
+    </thead>
+    <tbody id="tablaCompradores"></tbody>
+  </table>
+</div>
+
+<script>
+  const grid = document.getElementById("grid");
+  const precioNumero = 2000;
+
+  let rifa = JSON.parse(localStorage.getItem("rifa_compradores")) || {};
+
+  function guardar(){
+    localStorage.setItem("rifa_compradores", JSON.stringify(rifa));
+  }
+
+  function crearGrid(){
+    grid.innerHTML = "";
+
+    for(let i = 0; i < 100; i++){
+      const number = String(i).padStart(2, "0");
+      const data = rifa[number];
+
+      const div = document.createElement("div");
+      div.className = "num" + (data ? " vendido" : "");
+      div.onclick = () => manejarNumero(number);
+
+      div.innerHTML = `
+        <div class="numero">${number}</div>
+        ${
+          data
+          ? `
+            <div class="comprador">${data.nombre}</div>
+            <div class="telefono">${data.telefono}</div>
+          `
+          : `<div class="estado">Disponible</div>`
+        }
+      `;
+
+      grid.appendChild(div);
+    }
+
+    actualizarStats();
+    actualizarTabla();
+  }
+
+  function manejarNumero(numero){
+    if(rifa[numero]){
+      const data = rifa[numero];
+
+      const liberar = confirm(
+        "Número " + numero + "\\n\\n" +
+        "Comprador: " + data.nombre + "\\n" +
+        "Teléfono: " + data.telefono + "\\n\\n" +
+        "¿Desea liberar este número?"
+      );
+
+      if(liberar){
+        delete rifa[numero];
+        guardar();
+        crearGrid();
+      }
+
+      return;
+    }
+
+    const nombre = prompt("Nombre de la persona que compró el número " + numero + ":");
+    if(!nombre || nombre.trim() === ""){
+      alert("Debe ingresar un nombre.");
+      return;
+    }
+
+    const telefono = prompt("Número de teléfono de " + nombre + ":");
+    if(!telefono || telefono.trim() === ""){
+      alert("Debe ingresar un número de teléfono.");
+      return;
+    }
+
+    rifa[numero] = {
+      nombre: nombre.trim(),
+      telefono: telefono.trim()
+    };
+
+    guardar();
+    crearGrid();
+  }
+
+  function actualizarStats(){
+    const vendidos = Object.keys(rifa).length;
+    const disponibles = 100 - vendidos;
+    const recaudado = vendidos * precioNumero;
+
+    document.getElementById("vendidos").textContent = vendidos;
+    document.getElementById("disponibles").textContent = disponibles;
+    document.getElementById("recaudado").textContent = recaudado.toLocaleString("es-CR");
+  }
+
+  function actualizarTabla(){
+    const tbody = document.getElementById("tablaCompradores");
+    tbody.innerHTML = "";
+
+    Object.keys(rifa).sort().forEach(numero => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${numero}</td>
+        <td>${rifa[numero].nombre}</td>
+        <td>${rifa[numero].telefono}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  crearGrid();
+</script>
+
+</body>
+</html>
